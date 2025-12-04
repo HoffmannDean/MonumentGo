@@ -1,4 +1,4 @@
-package de.luh.hci.mid.myapplication
+package de.luh.hci.mid.monumentgo
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -11,7 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import de.luh.hci.mid.myapplication.ui.theme.MonumentGoTheme
+import de.luh.hci.mid.monumentgo.ui.theme.MonumentGoTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

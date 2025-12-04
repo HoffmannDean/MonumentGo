@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "de.luh.hci.mid.myapplication"
+    namespace = "de.luh.hci.mid.monumentgo"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "de.luh.hci.mid.myapplication"
+        applicationId = "de.luh.hci.mid.monumentgo"
         minSdk = 26
         targetSdk = 36
         versionCode = 1

@@ -1,4 +1,4 @@
-package de.luh.hci.mid.myapplication.ui.theme
+package de.luh.hci.mid.monumentgo.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

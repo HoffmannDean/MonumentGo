@@ -1,4 +1,4 @@
-package de.luh.hci.mid.myapplication
+package de.luh.hci.mid.monumentgo
 
 import org.junit.Test
 

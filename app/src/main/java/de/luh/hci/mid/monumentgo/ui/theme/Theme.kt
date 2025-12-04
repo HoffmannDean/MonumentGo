@@ -1,4 +1,4 @@
-package de.luh.hci.mid.myapplication.ui.theme
+package de.luh.hci.mid.monumentgo.ui.theme
 
 import android.app.Activity
 import android.os.Build
