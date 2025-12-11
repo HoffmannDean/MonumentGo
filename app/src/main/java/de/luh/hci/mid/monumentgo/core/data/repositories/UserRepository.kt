@@ -51,7 +51,7 @@ class UserRepository {
                 buildJsonObject {
                     put("user_id", user.id)
                 }
-            ).decodeSingle<UserProfile>()
+            ).decodeAs<UserProfile>()
             return AuthResponse.Success(profile)
         } catch (e: Exception) {
             return AuthResponse.Error(e.localizedMessage)

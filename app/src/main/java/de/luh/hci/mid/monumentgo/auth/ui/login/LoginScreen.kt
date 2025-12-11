@@ -1,4 +1,4 @@
-package de.luh.hci.mid.monumentgo.auth.ui.register
+package de.luh.hci.mid.monumentgo.auth.ui.login
 
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Card
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
@@ -25,15 +26,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
-import de.luh.hci.mid.monumentgo.ui.theme.MonumentGoTheme
-import de.luh.hci.mid.monumentgo.core.data.repositories.AuthResponse
 import androidx.lifecycle.viewmodel.compose.viewModel
+import de.luh.hci.mid.monumentgo.auth.ui.register.RegisterScreen
+import de.luh.hci.mid.monumentgo.core.data.repositories.AuthResponse
+import de.luh.hci.mid.monumentgo.ui.theme.MonumentGoTheme
 import kotlinx.coroutines.launch
 
-
 @Composable
-fun RegisterScreen(
-    viewModel: RegisterViewModel = viewModel()
+fun LoginScreen(
+    viewModel: LoginViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -52,24 +53,22 @@ fun RegisterScreen(
                     horizontalArrangement = Arrangement.Start
                 ) {
                     Text(
-                        text = "Registrieren",
+                        text = "Einloggen",
                         style = MaterialTheme.typography.headlineMedium
                     )
                 }
                 Spacer(modifier = Modifier.height(48.dp))
                 Column {
-                    Text("Benutzername")
-                    TextField(
-                        modifier = Modifier.fillMaxWidth(),
-                        value = uiState.username,
-                        onValueChange = { viewModel.changeUsername(it) }
-                    )
-                    Spacer(modifier = Modifier.height(24.dp))
                     Text("Email")
                     TextField(
                         modifier = Modifier.fillMaxWidth(),
                         value = uiState.email,
                         onValueChange = { viewModel.changeEmail(it) },
+                        placeholder = {
+                            Text(
+                                text = "email@example.com"
+                            )
+                        }
                     )
                     Spacer(modifier = Modifier.height(24.dp))
                     Text("Passwort")
@@ -87,7 +86,7 @@ fun RegisterScreen(
                     ElevatedButton(
                         onClick = {
                             viewModel.viewModelScope.launch {
-                                val response = viewModel.register()
+                                val response = viewModel.login()
                                 if (response is AuthResponse.Success) {
                                     Log.d("auth", response.profile.toString())
                                 } else if (response is AuthResponse.Error) {
@@ -100,10 +99,10 @@ fun RegisterScreen(
                     }
                     TextButton(
                         onClick = {
-                            Log.d("nav", "Navigate to LoginScreen")
+                            Log.d("nav", "Navigate to RegisterScreen")
                         }
                     ) {
-                        Text("Oder in Konto einloggen")
+                        Text("Oder erstelle ein Konto")
                     }
                 }
             }
@@ -113,8 +112,8 @@ fun RegisterScreen(
 
 @Preview(showBackground = true)
 @Composable
-fun RegisterScreenPreview() {
+fun LoginScreenPreview() {
     MonumentGoTheme {
-        RegisterScreen()
+        LoginScreen()
     }
 }
