@@ -1,50 +1,35 @@
-package de.luh.hci.mid.monumentgo.auth.ui
+package de.luh.hci.mid.monumentgo.auth.ui.register
 
-import android.R.attr.onClick
-import android.R.attr.text
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import de.luh.hci.mid.monumentgo.core.data.db.AuthResponse
-import de.luh.hci.mid.monumentgo.core.data.db.DatabaseProvider
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewModelScope
 import de.luh.hci.mid.monumentgo.ui.theme.MonumentGoTheme
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
+import de.luh.hci.mid.monumentgo.core.data.repositories.AuthResponse
+import androidx.lifecycle.viewmodel.compose.viewModel
+import kotlinx.coroutines.launch
+
 
 @Composable
-fun RegisterScreen() {
-    var usernameValue: String by remember {
-        mutableStateOf("")
-    }
-    var emailValue: String by remember {
-        mutableStateOf("")
-    }
-    var passwordValue: String by remember {
-        mutableStateOf("")
-    }
-
-    val coroutineScope = rememberCoroutineScope()
+fun RegisterScreen(
+    viewModel: RegisterViewModel = viewModel()
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -58,18 +43,14 @@ fun RegisterScreen() {
         Column {
             Text("Benutzername")
             TextField(
-                value = usernameValue,
-                onValueChange = { newValue ->
-                    usernameValue = newValue
-                }
+                value = uiState.username,
+                onValueChange = { viewModel.changeUsername(it) }
             )
             Spacer(modifier = Modifier.height(24.dp))
             Text("Email")
             TextField(
-                value = emailValue,
-                onValueChange = { newValue ->
-                    emailValue = newValue
-                },
+                value = uiState.email,
+                onValueChange = { viewModel.changeEmail(it) },
                 placeholder = {
                     Text(
                         text = "email@example.com"
@@ -79,24 +60,21 @@ fun RegisterScreen() {
             Spacer(modifier = Modifier.height(24.dp))
             Text("Passwort")
             TextField(
-                value = passwordValue,
-                onValueChange = { newValue ->
-                    passwordValue = newValue
-                },
+                value = uiState.password,
+                onValueChange = { viewModel.changePassword(it) },
                 visualTransformation = PasswordVisualTransformation(),
             )
         }
         ElevatedButton(
             onClick = {
-                DatabaseProvider.signUpNewUser(usernameValue, emailValue, passwordValue)
-                    .onEach { result ->
-                        if (result is AuthResponse.Success) {
-                            Log.d("auth", "Registration Success: " + result.profile.toString())
-                        } else if(result is AuthResponse.Error) {
-                            Log.d("auth", "Registration Failed: " + result.message)
-                        }
+                viewModel.viewModelScope.launch {
+                    val response = viewModel.register()
+                    if (response is AuthResponse.Success) {
+                        Log.d("auth", response.profile.toString())
+                    } else if (response is AuthResponse.Error) {
+                        Log.d("auth", response.message ?: "Error registering user.")
                     }
-                    .launchIn(coroutineScope)
+                }
             }
         ) {
             Text(text = "erstellen")
