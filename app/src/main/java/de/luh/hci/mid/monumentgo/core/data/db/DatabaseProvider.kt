@@ -1,6 +1,7 @@
 package de.luh.hci.mid.monumentgo.core.data.db
 
 import android.content.Context
+import android.util.Log
 import de.luh.hci.mid.monumentgo.BuildConfig
 import de.luh.hci.mid.monumentgo.core.data.model.UserProfile
 import io.github.jan.supabase.SupabaseClient
@@ -10,10 +11,18 @@ import io.github.jan.supabase.auth.providers.builtin.Email
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.postgrest.from
+import io.github.jan.supabase.postgrest.postgrest
+import io.github.jan.supabase.serializer.KotlinXSerializer
+import io.ktor.http.HttpStatusCode.Companion.Created
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonNamingStrategy
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
+import kotlinx.serialization.serializer
 
 sealed interface AuthResponse {
     data class Success(val profile: UserProfile) : AuthResponse
@@ -24,11 +33,15 @@ object DatabaseProvider {
     lateinit var supabase: SupabaseClient
         private set
 
+    @OptIn(ExperimentalSerializationApi::class)
     fun initialize(context: Context) {
         supabase = createSupabaseClient(
             supabaseUrl = BuildConfig.SUPABASE_URL,
             supabaseKey = BuildConfig.SUPABASE_ANON_KEY
         ) {
+            defaultSerializer = KotlinXSerializer(Json {
+                namingStrategy = JsonNamingStrategy.SnakeCase
+            })
             install(Auth)
             install(Postgrest)
         }
@@ -37,19 +50,23 @@ object DatabaseProvider {
     fun signUpNewUser(username: String, email: String, password: String): Flow<AuthResponse> =
         flow {
             try {
-                val result = supabase.auth.signUpWith(Email) {
+                val user = supabase.auth.signUpWith(Email) {
                     this.email = email
                     this.password = password
                     this.data = buildJsonObject { put("username", username) }
                 }
-                if (result == null) {
+                if (user == null) {
                     emit(AuthResponse.Error("Disable auto-confirm!"))
                 } else {
-                    val profile = supabase.from("profile_with_level").select {
-                        filter {
-                            UserProfile::id eq result.id
+                    Log.d("auth", "Created user successfully. Retrieve profile:")
+                    val result = supabase.postgrest.rpc (
+                        "get_profile_with_level",
+                        buildJsonObject {
+                            put("user_id", user.id)
                         }
-                    }.decodeSingle<UserProfile>()
+                    )
+                    Log.d("auth", result.data)
+                    val profile = result.decodeAs<UserProfile>()
                     emit(AuthResponse.Success(profile))
                 }
             } catch (e: Exception) {
@@ -59,7 +76,7 @@ object DatabaseProvider {
 
     fun signInWithEmail(email: String, password: String): Flow<AuthResponse> = flow {
         try {
-            val result = supabase.auth.signInWith(Email) {
+            supabase.auth.signInWith(Email) {
                 this.email = email
                 this.password = password
             }
@@ -67,11 +84,12 @@ object DatabaseProvider {
             if (user == null) {
                 emit(AuthResponse.Error("Failed retrieving user"))
             } else {
-                val profile = supabase.from("profile_with_level").select {
-                    filter {
-                        UserProfile::id eq user.id
+                val profile = supabase.postgrest.rpc (
+                    "get_profile_with_level",
+                    buildJsonObject {
+                        put("user_id", user.id)
                     }
-                }.decodeSingle<UserProfile>()
+                ).decodeSingle<UserProfile>()
                 emit(AuthResponse.Success(profile))
             }
         } catch (e: Exception) {

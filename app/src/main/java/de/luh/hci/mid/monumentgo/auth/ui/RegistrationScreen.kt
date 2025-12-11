@@ -91,9 +91,9 @@ fun RegisterScreen() {
                 DatabaseProvider.signUpNewUser(usernameValue, emailValue, passwordValue)
                     .onEach { result ->
                         if (result is AuthResponse.Success) {
-                            Log.d("auth", "Email Success: " + result.profile.toString())
+                            Log.d("auth", "Registration Success: " + result.profile.toString())
                         } else if(result is AuthResponse.Error) {
-                            Log.d("auth", "Email Failed: " + result.message)
+                            Log.d("auth", "Registration Failed: " + result.message)
                         }
                     }
                     .launchIn(coroutineScope)
