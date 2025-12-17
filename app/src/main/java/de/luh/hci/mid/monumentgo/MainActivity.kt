@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import de.luh.hci.mid.monumentgo.auth.ui.login.LoginScreen
 import de.luh.hci.mid.monumentgo.auth.ui.register.RegisterScreen
+import de.luh.hci.mid.monumentgo.leaderboard.ui.LeaderboardScreen
 import de.luh.hci.mid.monumentgo.ui.theme.MonumentGoTheme
 
 class MainActivity : ComponentActivity() {
@@ -21,7 +22,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             MonumentGoTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
-                    LoginScreen()
+                    //LoginScreen()
+                    LeaderboardScreen()
                 }
             }
         }
@@ -36,7 +38,7 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
     )
 }
 
-@Preview(showBackground = true)
+
 @Composable
 fun GreetingPreview() {
     MonumentGoTheme {
