@@ -13,6 +13,8 @@ ktorVersion = "3.3.3"
 supabaseKtVersion = "3.2.6"
 camera = "1.5.2"
 materialIconsCore = "1.7.8"
+navigationRuntimeKtx = "2.9.6"
+visionInternalVkp = "18.2.3"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -40,6 +42,8 @@ androidx-camera-camera2 = { group = "androidx.camera", name = "camera-camera2", 
 androidx-camera-view = { group = "androidx.camera", name = "camera-view", version.ref = "camera" }
 androidx-camera-lifecycle = { group = "androidx.camera", name = "camera-lifecycle", version.ref = "camera" }
 
+androidx-navigation-runtime-ktx = { group = "androidx.navigation", name = "navigation-runtime-ktx", version.ref = "navigationRuntimeKtx" }
+vision-internal-vkp = { group = "com.google.mlkit", name = "vision-internal-vkp", version.ref = "visionInternalVkp" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

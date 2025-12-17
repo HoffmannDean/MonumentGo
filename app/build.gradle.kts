@@ -50,6 +50,9 @@ android {
 }
 
 dependencies {
+    // Added by Erik (MainScreen)
+    implementation("androidx.navigation:navigation-compose:2.9.6")
+    implementation("org.osmdroid:osmdroid-android:6.1.20")
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -75,6 +78,8 @@ dependencies {
     implementation(libs.supabase.kt.postgrest)
     implementation(libs.ktor.client)
 
+    implementation(libs.androidx.navigation.runtime.ktx)
+    implementation(libs.vision.internal.vkp)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
