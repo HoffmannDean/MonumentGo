@@ -1,4 +1,4 @@
-package de.luh.hci.mid.monumentgo.infoscreen
+package de.luh.hci.mid.monumentgo.infoscreen.ui
 
 
 import androidx.compose.material.icons.Icons

@@ -1,4 +1,4 @@
-package de.luh.hci.mid.monumentgo.quiz.result
+package de.luh.hci.mid.monumentgo.quiz.data
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider

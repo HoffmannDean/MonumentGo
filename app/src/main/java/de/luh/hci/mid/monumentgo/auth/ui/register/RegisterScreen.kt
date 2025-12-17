@@ -25,7 +25,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
-import de.luh.hci.mid.monumentgo.ui.theme.MonumentGoTheme
+import de.luh.hci.mid.monumentgo.core.ui.theme.MonumentGoTheme
 import de.luh.hci.mid.monumentgo.core.data.repositories.AuthResponse
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch

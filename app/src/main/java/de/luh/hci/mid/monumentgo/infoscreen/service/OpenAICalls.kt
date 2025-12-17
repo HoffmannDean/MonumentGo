@@ -1,4 +1,4 @@
-package de.luh.hci.mid.monumentgo.infoscreen
+package de.luh.hci.mid.monumentgo.infoscreen.service
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory

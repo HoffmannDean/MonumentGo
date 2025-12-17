@@ -1,13 +1,15 @@
-package de.luh.hci.mid.monumentgo.infoscreen
+package de.luh.hci.mid.monumentgo.infoscreen.ui
 
 import android.app.Application
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import de.luh.hci.mid.monumentgo.BuildConfig
+import de.luh.hci.mid.monumentgo.infoscreen.service.describeImage
+import de.luh.hci.mid.monumentgo.infoscreen.service.extractMonumentName
+import de.luh.hci.mid.monumentgo.infoscreen.service.generateQuiz
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File

@@ -1,6 +1,5 @@
-package de.luh.hci.mid.monumentgo.ui.theme
+package de.luh.hci.mid.monumentgo.core.ui.theme
 
-import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme

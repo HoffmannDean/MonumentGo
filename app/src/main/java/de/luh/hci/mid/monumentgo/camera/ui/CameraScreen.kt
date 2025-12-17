@@ -1,4 +1,4 @@
-package de.luh.hci.mid.monumentgo.camera
+package de.luh.hci.mid.monumentgo.camera.ui
 
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.LinearLayout

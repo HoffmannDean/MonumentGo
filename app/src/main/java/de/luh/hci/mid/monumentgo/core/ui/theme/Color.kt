@@ -1,4 +1,4 @@
-package de.luh.hci.mid.monumentgo.ui.theme
+package de.luh.hci.mid.monumentgo.core.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

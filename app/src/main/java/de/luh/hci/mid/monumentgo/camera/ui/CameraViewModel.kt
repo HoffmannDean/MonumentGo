@@ -1,4 +1,4 @@
-package de.luh.hci.mid.monumentgo.camera
+package de.luh.hci.mid.monumentgo.camera.ui
 
 import android.app.Application
 import android.util.Log
