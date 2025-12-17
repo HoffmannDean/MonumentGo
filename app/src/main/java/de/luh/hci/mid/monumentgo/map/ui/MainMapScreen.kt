@@ -1,17 +1,24 @@
 package de.luh.hci.mid.monumentgo.map.ui
 
+import android.location.Location
 import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.runtime.Composable
 import androidx.compose.foundation.layout.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavController
 import de.luh.hci.mid.monumentgo.R
+import de.luh.hci.mid.monumentgo.map.domain.OSMMap
 import de.luh.hci.mid.monumentgo.map.domain.Screen
-import de.luh.hci.mid.monumentgo.map.domain.OSMMapView
+import de.luh.hci.mid.monumentgo.map.domain.GetCurrentLocation
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -48,7 +55,14 @@ fun MainMapScreen(navController: NavController) {
                 .fillMaxSize()
                 .padding(padding)
         ) {
-            OSMMapView()
+            val context = LocalContext.current
+            var currentLocation by remember{ mutableStateOf<Location?>(null) }
+
+            GetCurrentLocation(context) { location ->
+                currentLocation = location
+            }
+
+            OSMMap(location = currentLocation)
         }
     }
 }
