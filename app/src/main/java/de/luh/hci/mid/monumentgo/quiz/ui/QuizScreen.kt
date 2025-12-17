@@ -31,7 +31,10 @@ fun QuizScreen(
                 onBackClicked = {
                     println("Zurück-Pfeil geklickt! Navigation ausführen...")
                 },
-                quizIdx = (min(viewModel.currentQuestionIndex + 1, viewModel.questionsSize)).toString(),
+                quizIdx = (min(
+                    viewModel.currentQuestionIndex + 1,
+                    viewModel.questionsSize
+                )).toString(),
                 quizMax = viewModel.questionsSize.toString()
             )
         }

@@ -4,16 +4,10 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import de.luh.hci.mid.monumentgo.auth.ui.login.LoginScreen
-import de.luh.hci.mid.monumentgo.auth.ui.register.RegisterScreen
-import de.luh.hci.mid.monumentgo.leaderboard.ui.LeaderboardScreen
+import de.luh.hci.mid.monumentgo.navigation.AppNavigation
+import de.luh.hci.mid.monumentgo.infoscreen.ImageInfoScreen
 import de.luh.hci.mid.monumentgo.ui.theme.MonumentGoTheme
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -21,27 +15,8 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             MonumentGoTheme {
-                Surface(modifier = Modifier.fillMaxSize()) {
-                    //LoginScreen()
-                    LeaderboardScreen()
-                }
+                AppNavigation()
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-
-@Composable
-fun GreetingPreview() {
-    MonumentGoTheme {
-        Greeting("Android")
     }
 }

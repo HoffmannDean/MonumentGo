@@ -1,8 +1,10 @@
-package de.luh.hci.mid.monumentgo.quiz.ui
+package de.luh.hci.mid.monumentgo.infoscreen
+
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.CenterAlignedTopAppBar // Neuer Import
+import androidx.compose.material.icons.outlined.PlayArrow
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -13,10 +15,10 @@ import androidx.compose.runtime.Composable
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun QuizTopBar(
+fun InfoTopBar(
+    name: String,
     onBackClicked: () -> Unit,
-    quizIdx: String,
-    quizMax: String,
+    onVolumeClicked: () -> Unit
 ) {
     CenterAlignedTopAppBar(
         colors = TopAppBarDefaults.topAppBarColors(
@@ -24,7 +26,7 @@ fun QuizTopBar(
             titleContentColor = MaterialTheme.colorScheme.primary,
         ),
         title = {
-            Text("Frage " + quizIdx + "/" + quizMax)
+            Text(name)
         },
         navigationIcon = {
             IconButton(onClick = onBackClicked) {
@@ -34,6 +36,13 @@ fun QuizTopBar(
                 )
             }
         },
-        actions = {}
+        actions = {
+            IconButton(onClick = onVolumeClicked) {
+                Icon(
+                    imageVector = Icons.Outlined.PlayArrow,
+                    contentDescription = "Listen to text"
+                )
+            }
+        }
     )
 }
