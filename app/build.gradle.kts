@@ -26,10 +26,6 @@ android {
         // these are generally safe to expose publicly
         buildConfigField("String", "SUPABASE_URL", "\"https://sawuorsyrkahywydvvcn.supabase.co\"")
         buildConfigField("String", "SUPABASE_ANON_KEY", "\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNhd3VvcnN5cmthaHl3eWR2dmNuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ1Mzc5MDQsImV4cCI6MjA4MDExMzkwNH0._THv4gh4H_osMM4M6INP2NVIb7PkWJfrEtwju9veA7w\"")
-    }
-
-    buildFeatures {
-        buildConfig = true
         buildConfigField("String", "OPENAI_API_KEY", "\"${openAiApiKey}\"")
     }
 
