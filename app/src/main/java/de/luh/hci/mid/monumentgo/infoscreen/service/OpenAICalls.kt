@@ -179,25 +179,25 @@ fun generateQuiz(
 }
 
 fun extractMonumentName(
-    description: String,
+    imageFile: File,
     apiKey: String,
     callback: (String?) -> Unit
 ) {
     val client = OkHttpClient()
 
-    val prompt = """
-        Extract the name of the monument from the following text.
-        Output MUST be strictly valid JSON and nothing else.
-        JSON format:
-        { "monument": "Name of the monument" }
+    val bitmap = BitmapFactory.decodeFile(imageFile.absolutePath)
+    val scaled = Bitmap.createScaledBitmap(bitmap, 1024, 1024, true)
+    val stream = ByteArrayOutputStream()
+    scaled.compress(Bitmap.CompressFormat.JPEG, 80, stream)
+    val base64Image = Base64.getEncoder().encodeToString(stream.toByteArray())
 
-        Text:
-        $description
-    """.trimIndent()
+    val contentArray = JSONArray()
+        .put(JSONObject().put("type", "text").put("text", "What is depicted in the given image? Answer in a as little words as possible"))
+        .put(JSONObject().put("type", "image_url").put("image_url", JSONObject().put("url", "data:image/jpeg;base64,$base64Image")))
 
     val message = JSONObject()
         .put("role", "user")
-        .put("content", JSONArray().put(JSONObject().put("type", "text").put("text", prompt)))
+        .put("content", contentArray)
 
     val jsonBody = JSONObject()
         .put("model", "gpt-4o-mini")
@@ -216,27 +216,21 @@ fun extractMonumentName(
 
     client.newCall(request).enqueue(object : Callback {
         override fun onFailure(call: Call, e: IOException) {
-            callback(null)
+            callback("Error: ${e.message}")
         }
 
         override fun onResponse(call: Call, response: Response) {
             response.use {
                 if (!response.isSuccessful) {
-                    callback(null)
-                    return
-                }
-
-                val content = JSONObject(response.body!!.string())
-                    .getJSONArray("choices")
-                    .getJSONObject(0)
-                    .getJSONObject("message")
-                    .getString("content")
-
-                try {
-                    val json = JSONObject(content)
-                    callback(json.getString("monument"))
-                } catch (e: Exception) {
-                    callback(null)
+                    callback("API Error: ${response.code}")
+                } else {
+                    val json = JSONObject(response.body!!.string())
+                    val content = json
+                        .getJSONArray("choices")
+                        .getJSONObject(0)
+                        .getJSONObject("message")
+                        .getString("content")
+                    callback(content)
                 }
             }
         }

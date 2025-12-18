@@ -35,7 +35,7 @@ class InfoViewModel(
                 description = it ?: "Failed to load description"
                 onUpdate()
 
-                extractMonumentName(description, BuildConfig.OPENAI_API_KEY) { name ->
+                extractMonumentName(imageFile, BuildConfig.OPENAI_API_KEY) { name ->
                     viewModelScope.launch(Dispatchers.Main) {
                         monumentName = name ?: "Unknown Monument"
                     }
@@ -51,12 +51,3 @@ class InfoViewModel(
         }
     }
 }
-
-//    fun loadDescription(onUpdate: () -> Unit) {
-//        viewModelScope.launch(Dispatchers.IO) {
-//            describeImage(imageFile, BuildConfig.OPENAI_API_KEY) {
-//                description = it ?: "Failed to load description"
-//                onUpdate()
-//            }
-//        }
-//    }
