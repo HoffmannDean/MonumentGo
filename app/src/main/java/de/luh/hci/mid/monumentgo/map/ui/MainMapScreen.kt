@@ -17,7 +17,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavController
 import de.luh.hci.mid.monumentgo.R
 import de.luh.hci.mid.monumentgo.map.domain.OSMMap
-import de.luh.hci.mid.monumentgo.map.domain.Screen
+import de.luh.hci.mid.monumentgo.navigation.domain.Screen
 import de.luh.hci.mid.monumentgo.map.domain.GetCurrentLocation
 
 @OptIn(ExperimentalMaterial3Api::class)

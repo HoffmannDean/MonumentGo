@@ -1,4 +1,4 @@
-package de.luh.hci.mid.monumentgo.map.domain
+package de.luh.hci.mid.monumentgo.navigation.domain
 
 sealed class Screen(val route: String) {
     object MainMap : Screen("main_map")

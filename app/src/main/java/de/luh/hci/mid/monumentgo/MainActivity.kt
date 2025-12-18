@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import de.luh.hci.mid.monumentgo.map.domain.AppNavigation
+import de.luh.hci.mid.monumentgo.navigation.domain.AppNavigation
 import de.luh.hci.mid.monumentgo.ui.theme.MonumentGoTheme
 
 class MainActivity : ComponentActivity() {

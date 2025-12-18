@@ -1,14 +1,12 @@
-package de.luh.hci.mid.monumentgo.map.domain
+package de.luh.hci.mid.monumentgo.navigation.domain
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import de.luh.hci.mid.monumentgo.map.ui.MainMapScreen
-import de.luh.hci.mid.monumentgo.map.domain.Screen
-import de.luh.hci.mid.monumentgo.ui.screens.ProfileScreen
 import de.luh.hci.mid.monumentgo.ui.screens.SettingsScreen
-import de.luh.hci.mid.monumentgo.ui.screens.StatsScreen
+import de.luh.hci.mid.monumentgo.analytics.ui.AnalyticsScreen
 
 @Composable
 fun AppNavigation(){
@@ -21,11 +19,7 @@ fun AppNavigation(){
         }
 
         composable(Screen.Stats.route) {
-            StatsScreen(navController)
-        }
-
-        composable(Screen.Profile.route) {
-            ProfileScreen(navController)
+            AnalyticsScreen(navController)
         }
 
         composable(Screen.Settings.route) {
