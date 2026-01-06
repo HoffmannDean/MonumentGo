@@ -15,7 +15,7 @@ android {
 
     defaultConfig {
         applicationId = "de.luh.hci.mid.monumentgo"
-        minSdk = 26
+        minSdk = 30
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
@@ -83,6 +83,7 @@ dependencies {
 
     implementation(libs.androidx.navigation.runtime.ktx)
     implementation(libs.vision.internal.vkp)
+    implementation(libs.androidx.compose.animation)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
