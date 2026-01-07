@@ -10,6 +10,8 @@ import de.luh.hci.mid.monumentgo.infoscreen.ui.ImageInfoScreen
 import de.luh.hci.mid.monumentgo.infoscreen.ui.InfoViewModel
 import de.luh.hci.mid.monumentgo.map.ui.MainMapScreen
 import de.luh.hci.mid.monumentgo.profile.ui.ProfileScreen
+import de.luh.hci.mid.monumentgo.quiz.data.QuizResultScreen
+import de.luh.hci.mid.monumentgo.quiz.ui.QuizScreen
 import de.luh.hci.mid.monumentgo.settings.ui.SettingsScreen
 
 @Composable
@@ -40,6 +42,14 @@ fun AppNavigation() {
                 navController,
                 viewModel
             )
+        }
+
+        composable(Screen.Quiz.route) {
+            QuizScreen(navController)
+        }
+
+        composable(Screen.QuizResult.route) {
+            QuizResultScreen(navController)
         }
     }
 }

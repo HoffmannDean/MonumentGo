@@ -53,7 +53,7 @@ fun ImageInfoScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
-                    println("FAB clicked!")
+                    navController.navigate(Screen.Quiz.route)
                 }
             ) {
                 Text("Quiz!")
