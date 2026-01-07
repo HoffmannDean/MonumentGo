@@ -85,7 +85,7 @@ fun CameraScreen(navController: NavController) {
                 val outputFileOptions = ImageCapture.OutputFileOptions.Builder(
                     File(
                         context.filesDir,
-                        "imageToScan.jpg"
+                        "imageToScan.png"
                     )
                 ).build()
 
