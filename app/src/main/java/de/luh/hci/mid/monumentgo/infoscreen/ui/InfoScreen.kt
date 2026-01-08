@@ -53,6 +53,7 @@ fun ImageInfoScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
+                    viewModel.prepareQuizForNavigation()
                     navController.navigate(Screen.Quiz.route)
                 }
             ) {
