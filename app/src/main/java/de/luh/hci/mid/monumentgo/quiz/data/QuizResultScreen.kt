@@ -14,10 +14,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import de.luh.hci.mid.monumentgo.core.navigation.Screen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun QuizResultScreen(resultViewModel: QuizResultViewModel = viewModel()) {
+fun QuizResultScreen(
+    navController: NavController,
+    resultViewModel: QuizResultViewModel = viewModel()
+    ) {
     Scaffold(
         topBar = { CenterAlignedTopAppBar(title = { Text("Quiz results") }) },
     ) { paddingValues ->
@@ -34,7 +39,13 @@ fun QuizResultScreen(resultViewModel: QuizResultViewModel = viewModel()) {
 
             Text("Level ${resultViewModel.level}")
 
-            ElevatedButton(onClick = {}) { Text("Back to Map") }
+            ElevatedButton(
+                onClick = {
+                    navController.navigate(Screen.MainMap.route)
+                }
+            ) {
+                Text("Back to Map")
+            }
         }
     }
 }

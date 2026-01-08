@@ -37,7 +37,7 @@ fun MainMapScreen(navController: NavController) {
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = { /* GoTo Camera */ }) {
+            FloatingActionButton(onClick = { navController.navigate(Screen.Camera.route) }) {
                 Icon(painter= painterResource(id = R.drawable.outline_photo_camera), contentDescription = "Camera")
             }
         }

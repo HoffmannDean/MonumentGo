@@ -16,11 +16,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import de.luh.hci.mid.monumentgo.core.navigation.Screen
 import kotlin.math.min
 
 
 @Composable
 fun QuizScreen(
+    navController: NavController,
     viewModel: QuizViewModel = viewModel()
 ) {
     val currentQuestion = viewModel.getCurrentQuestion()
@@ -29,7 +32,7 @@ fun QuizScreen(
         topBar = {
             QuizTopBar(
                 onBackClicked = {
-                    println("Zurück-Pfeil geklickt! Navigation ausführen...")
+                    navController.popBackStack()
                 },
                 quizIdx = (min(
                     viewModel.currentQuestionIndex + 1,
@@ -93,6 +96,7 @@ fun QuizScreen(
                     text = "Alle 3 Fragen wurden bearbeitet.",
                     style = MaterialTheme.typography.bodyLarge
                 )
+                navController.navigate(Screen.QuizResult.route)
             }
         }
     }

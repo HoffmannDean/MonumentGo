@@ -14,9 +14,12 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import de.luh.hci.mid.monumentgo.core.navigation.Screen
 
 @Composable
 fun ImageInfoScreen(
+    navController: NavController,
     viewModel: InfoViewModel = viewModel()
 ) {
     var refresh by remember { mutableStateOf(0) }
@@ -40,7 +43,7 @@ fun ImageInfoScreen(
             InfoTopBar (
                 name = viewModel.monumentName.ifBlank { "Loading Name" },
                 onBackClicked = {
-                    println("Back was clicked on info screen")
+                    navController.navigate(Screen.Camera.route)
                 },
                 onVolumeClicked = {
                     println("Text will be played")
@@ -50,7 +53,7 @@ fun ImageInfoScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
-                    println("FAB clicked!")
+                    navController.navigate(Screen.Quiz.route)
                 }
             ) {
                 Text("Quiz!")
