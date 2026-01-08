@@ -28,11 +28,15 @@ import androidx.lifecycle.viewModelScope
 import de.luh.hci.mid.monumentgo.core.ui.theme.MonumentGoTheme
 import de.luh.hci.mid.monumentgo.core.data.repositories.AuthResponse
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import de.luh.hci.mid.monumentgo.core.navigation.Screen
 import kotlinx.coroutines.launch
 
 
 @Composable
 fun RegisterScreen(
+    navController: NavController,
     viewModel: RegisterViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -79,6 +83,12 @@ fun RegisterScreen(
                         onValueChange = { viewModel.changePassword(it) },
                         visualTransformation = PasswordVisualTransformation(),
                     )
+                    if (uiState.error != null) {
+                        Text(
+                            text = uiState.error ?: "Error registering user.",
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
                 }
                 Spacer(modifier = Modifier.height(48.dp))
                 Column(
@@ -89,7 +99,8 @@ fun RegisterScreen(
                             viewModel.viewModelScope.launch {
                                 val response = viewModel.register()
                                 if (response is AuthResponse.Success) {
-                                    Log.d("auth", response.profile.toString())
+                                    Log.d("auth", "Registered successfully.")
+                                    navController.navigate(Screen.MainMap.route)
                                 } else if (response is AuthResponse.Error) {
                                     Log.d("auth", response.message ?: "Error registering user.")
                                 }
@@ -100,7 +111,7 @@ fun RegisterScreen(
                     }
                     TextButton(
                         onClick = {
-                            Log.d("nav", "Navigate to LoginScreen")
+                            navController.navigate(Screen.Login.route)
                         }
                     ) {
                         Text("Oder in Konto einloggen")
@@ -115,6 +126,6 @@ fun RegisterScreen(
 @Composable
 fun RegisterScreenPreview() {
     MonumentGoTheme {
-        RegisterScreen()
+        RegisterScreen(rememberNavController())
     }
 }

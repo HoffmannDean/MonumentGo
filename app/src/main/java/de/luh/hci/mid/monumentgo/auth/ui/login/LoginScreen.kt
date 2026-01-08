@@ -26,12 +26,16 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import de.luh.hci.mid.monumentgo.core.data.repositories.AuthResponse
+import de.luh.hci.mid.monumentgo.core.navigation.Screen
 import de.luh.hci.mid.monumentgo.core.ui.theme.MonumentGoTheme
 import kotlinx.coroutines.launch
 
 @Composable
 fun LoginScreen(
+    navController: NavController,
     viewModel: LoginViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -76,6 +80,12 @@ fun LoginScreen(
                         onValueChange = { viewModel.changePassword(it) },
                         visualTransformation = PasswordVisualTransformation(),
                     )
+                    if (uiState.error != null) {
+                        Text(
+                            text = uiState.error ?: "Error occurred during login.",
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
                 }
                 Spacer(modifier = Modifier.height(48.dp))
                 Column(
@@ -86,9 +96,10 @@ fun LoginScreen(
                             viewModel.viewModelScope.launch {
                                 val response = viewModel.login()
                                 if (response is AuthResponse.Success) {
-                                    Log.d("auth", response.profile.toString())
+                                    Log.d("auth", "Logged in successfully.")
+                                    navController.navigate(Screen.MainMap.route)
                                 } else if (response is AuthResponse.Error) {
-                                    Log.d("auth", response.message ?: "Error registering user.")
+                                    Log.d("auth", response.message ?: "Error occurred during login.")
                                 }
                             }
                         }
@@ -97,7 +108,7 @@ fun LoginScreen(
                     }
                     TextButton(
                         onClick = {
-                            Log.d("nav", "Navigate to RegisterScreen")
+                            navController.navigate(Screen.Register.route)
                         }
                     ) {
                         Text("Oder erstelle ein Konto")
@@ -112,6 +123,6 @@ fun LoginScreen(
 @Composable
 fun LoginScreenPreview() {
     MonumentGoTheme {
-        LoginScreen()
+        LoginScreen(rememberNavController())
     }
 }

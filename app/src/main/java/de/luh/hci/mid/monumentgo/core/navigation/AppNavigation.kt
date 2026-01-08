@@ -5,6 +5,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import de.luh.hci.mid.monumentgo.auth.ui.login.LoginScreen
+import de.luh.hci.mid.monumentgo.auth.ui.register.RegisterScreen
 import de.luh.hci.mid.monumentgo.camera.ui.CameraScreen
 import de.luh.hci.mid.monumentgo.infoscreen.ui.ImageInfoScreen
 import de.luh.hci.mid.monumentgo.infoscreen.ui.InfoViewModel
@@ -18,7 +20,7 @@ import de.luh.hci.mid.monumentgo.settings.ui.SettingsScreen
 fun AppNavigation() {
     val navController = rememberNavController()
 
-    NavHost(navController = navController, startDestination = Screen.MainMap.route) {
+    NavHost(navController = navController, startDestination = Screen.Login.route) {
 
         composable(Screen.MainMap.route) {
             MainMapScreen(navController)
@@ -51,5 +53,14 @@ fun AppNavigation() {
         composable(Screen.QuizResult.route) {
             QuizResultScreen(navController)
         }
+
+        composable(Screen.Login.route) {
+            LoginScreen(navController)
+        }
+
+        composable(Screen.Register.route) {
+            RegisterScreen(navController)
+        }
+
     }
 }
