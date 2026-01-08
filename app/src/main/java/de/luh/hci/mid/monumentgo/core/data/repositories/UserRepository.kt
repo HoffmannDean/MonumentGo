@@ -6,6 +6,9 @@ import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.exception.AuthRestException
 import io.github.jan.supabase.auth.providers.builtin.Email
 import io.github.jan.supabase.postgrest.postgrest
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 
@@ -37,6 +40,31 @@ fun AuthRestException.toUserMessage(): String =
     }
 
 class UserRepository {
+    private val _userProfile = MutableStateFlow<UserProfile?>(null)
+    val userProfile: StateFlow<UserProfile?> = _userProfile.asStateFlow()
+
+    suspend private fun getUserProfile(userId: String): UserProfile {
+        val profile = supabase.postgrest.rpc(
+            "get_profile_with_level",
+            buildJsonObject {
+                put("user_id", userId)
+            }
+        ).decodeAs<UserProfile>()
+        _userProfile.value = profile
+        return profile
+    }
+
+
+    suspend fun trySilentSignIn(): AuthResponse {
+        val session = supabase.auth.currentSessionOrNull()
+        val user = supabase.auth.currentUserOrNull()
+        if (session == null || user == null) {
+            return AuthResponse.Error("Not logged in")
+        }
+        val profile = getUserProfile(user.id)
+        return AuthResponse.Success(profile)
+    }
+
     suspend fun signUpNewUser(username: String, email: String, password: String): AuthResponse {
         try {
             val user = supabase.auth.signUpWith(Email) {
@@ -47,12 +75,7 @@ class UserRepository {
             if (user == null) {
                 return AuthResponse.Error("Disable auto-confirm!")
             }
-            val profile = supabase.postgrest.rpc(
-                "get_profile_with_level",
-                buildJsonObject {
-                    put("user_id", user.id)
-                }
-            ).decodeAs<UserProfile>()
+            val profile = getUserProfile(user.id)
             return AuthResponse.Success(profile)
         } catch (e: AuthRestException) {
             return AuthResponse.Error(e.toUserMessage())
@@ -71,17 +94,17 @@ class UserRepository {
             if (user == null) {
                 return AuthResponse.Error("Failed retrieving user")
             }
-            val profile = supabase.postgrest.rpc (
-                "get_profile_with_level",
-                buildJsonObject {
-                    put("user_id", user.id)
-                }
-            ).decodeAs<UserProfile>()
+            val profile = getUserProfile(user.id)
             return AuthResponse.Success(profile)
         } catch (e: AuthRestException) {
             return AuthResponse.Error(e.toUserMessage())
         } catch (e: Exception) {
             return AuthResponse.Error(e.toString())
         }
+    }
+
+    suspend fun signOut() {
+        supabase.auth.signOut()
+        _userProfile.value = null
     }
 }

@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import de.luh.hci.mid.monumentgo.BuildConfig
 import de.luh.hci.mid.monumentgo.core.data.model.UserProfile
+import de.luh.hci.mid.monumentgo.core.data.repositories.UserRepository
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.Auth
 import io.github.jan.supabase.auth.auth
