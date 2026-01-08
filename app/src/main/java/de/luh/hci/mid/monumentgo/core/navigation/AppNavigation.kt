@@ -7,6 +7,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import de.luh.hci.mid.monumentgo.MonumentGo
+import de.luh.hci.mid.monumentgo.analytics.ui.AnalyticsScreen
 import de.luh.hci.mid.monumentgo.auth.ui.login.LoginScreen
 import de.luh.hci.mid.monumentgo.auth.ui.register.RegisterScreen
 import de.luh.hci.mid.monumentgo.camera.ui.CameraScreen
@@ -25,6 +26,10 @@ fun AppNavigation() {
     val app = context.applicationContext as MonumentGo
 
     NavHost(navController = navController, startDestination = Screen.Login.route) {
+
+        composable(Screen.Analytics.route) {
+            AnalyticsScreen(navController)
+        }
 
         composable(Screen.MainMap.route) {
             MainMapScreen(navController)
