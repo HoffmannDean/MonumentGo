@@ -121,10 +121,11 @@ class UserRepository {
     suspend fun setUserScore(score: Int) {
         try {
             println("PROFILE: " + _userProfile.value)
+            println("UUID: " + _userProfile.value?.id.toString())
             val profile = supabase.postgrest.rpc(
                 "set_user_score",
                 buildJsonObject {
-                    put("user_id", userProfile.value?.id.toString())
+                    put("user_id", _userProfile.value?.id.toString())
                     put("score", score)
                 }
             ).decodeAs<UserProfile>()

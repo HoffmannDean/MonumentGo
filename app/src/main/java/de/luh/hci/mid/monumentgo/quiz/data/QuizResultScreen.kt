@@ -22,8 +22,8 @@ import de.luh.hci.mid.monumentgo.core.navigation.Screen
 @Composable
 fun QuizResultScreen(
     navController: NavController,
-    resultViewModel: QuizResultViewModel = viewModel()
-    ) {
+    resultViewModel: QuizResultViewModel = viewModel(factory = QuizResultViewModel.Factory)
+) {
     val currentScore : Int = QuizRepository.currentScore
     Scaffold(
         topBar = { CenterAlignedTopAppBar(title = { Text("Quiz results") }) },

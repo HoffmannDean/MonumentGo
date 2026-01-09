@@ -8,6 +8,8 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import de.luh.hci.mid.monumentgo.core.data.repositories.UserRepository
 import kotlinx.coroutines.launch
 import kotlin.uuid.ExperimentalUuidApi
+import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
+import de.luh.hci.mid.monumentgo.MonumentGo
 
 /*
 data class Question(
@@ -19,7 +21,7 @@ data class Question(
 */
 
 class QuizResultViewModel(
-    private val userRepo: UserRepository = UserRepository()
+    private val userRepo: UserRepository
 ) : ViewModel() {
     val quizResults: Map<String, Boolean> = mapOf(
         // questions.forEach { entry -> entry.name to entry.correctIndex == entry.selectedIndex }
@@ -36,6 +38,7 @@ class QuizResultViewModel(
         if (userRepo.userProfile.value == null) {
             return 0
         }
+        println("USER_PROFILE: " + userRepo.userProfile.value)
         return userRepo.getUserProfile().value!!.points
     }
 
@@ -49,7 +52,10 @@ class QuizResultViewModel(
     companion object {
         var Factory: ViewModelProvider.Factory = viewModelFactory {
             // val questions = listOf<Question>();
-            initializer { QuizResultViewModel(/*questions*/) }
+            initializer {
+                val app = (this[APPLICATION_KEY] as MonumentGo)
+                println("APP INFO: " + app.applicationInfo)
+                QuizResultViewModel(app.userRepository)}
         }
     }
 }

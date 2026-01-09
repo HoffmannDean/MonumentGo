@@ -51,7 +51,7 @@ class QuizViewModel(
         }
 
         viewModelScope.launch {
-            delay(2000)
+            delay(1000)
 
             if (currentQuestionIndex < questions.size){
                 currentQuestionIndex++
