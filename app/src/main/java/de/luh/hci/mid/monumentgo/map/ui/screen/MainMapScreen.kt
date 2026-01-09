@@ -37,9 +37,6 @@ fun MainMapScreen(
         Log.d("map", monumentRepository.monuments.value?.count().toString())
     }
 
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    Log.d("map", uiState.toString())
-
     return Scaffold(
         topBar = {
             TopAppBar(
@@ -92,7 +89,7 @@ fun MainMapScreen(
                 }
             }
 
-            OSMMap(location = currentLocation)
+            OSMMap(currentLocation, viewModel)
         }
     }
 }

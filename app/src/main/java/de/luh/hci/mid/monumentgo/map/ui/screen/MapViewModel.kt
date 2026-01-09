@@ -24,4 +24,6 @@ class MainMapViewModel(
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = MapState.Loading()
     )
+
+    suspend fun getDetails(monument: Monument) = monumentRepository.getMonumentDetails(monument.id)
 }
