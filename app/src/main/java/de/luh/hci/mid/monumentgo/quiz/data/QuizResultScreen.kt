@@ -1,5 +1,6 @@
 package de.luh.hci.mid.monumentgo.quiz.data
 
+import android.R.attr.onClick
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,6 +24,7 @@ fun QuizResultScreen(
     navController: NavController,
     resultViewModel: QuizResultViewModel = viewModel()
     ) {
+    val currentScore : Int = QuizRepository.currentScore
     Scaffold(
         topBar = { CenterAlignedTopAppBar(title = { Text("Quiz results") }) },
     ) { paddingValues ->
@@ -33,14 +35,15 @@ fun QuizResultScreen(
             verticalArrangement = Arrangement.SpaceEvenly,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("${resultViewModel.quizResults.count { (_, value) -> value }} / ${resultViewModel.quizResults.size} correct")
+            Text("${currentScore} / ${resultViewModel.quizResults.size} correct")
 
-            Text(resultViewModel.points.toString())
+            Text("${resultViewModel.getUserPoints()} + ${currentScore}")
 
             Text("Level ${resultViewModel.level}")
 
             ElevatedButton(
                 onClick = {
+                    resultViewModel.submitScore(currentScore)
                     navController.navigate(Screen.MainMap.route)
                 }
             ) {

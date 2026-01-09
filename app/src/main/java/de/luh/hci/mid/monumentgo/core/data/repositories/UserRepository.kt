@@ -1,12 +1,10 @@
 package de.luh.hci.mid.monumentgo.core.data.repositories
 
 import de.luh.hci.mid.monumentgo.core.data.db.DatabaseProvider.supabase
-import de.luh.hci.mid.monumentgo.core.data.model.Monument
 import de.luh.hci.mid.monumentgo.core.data.model.UserProfile
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.exception.AuthRestException
 import io.github.jan.supabase.auth.providers.builtin.Email
-import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.postgrest
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -116,5 +114,29 @@ class UserRepository {
 
     suspend fun earnPoints(monumentId: Int, points: Int) {
         // TODO: Implement this
+    }
+
+
+    @kotlin.uuid.ExperimentalUuidApi
+    suspend fun setUserScore(score: Int) {
+        try {
+            println("PROFILE: " + _userProfile.value)
+            val profile = supabase.postgrest.rpc(
+                "set_user_score",
+                buildJsonObject {
+                    put("user_id", userProfile.value?.id.toString())
+                    put("score", score)
+                }
+            ).decodeAs<UserProfile>()
+
+            _userProfile.value = profile
+            println("profile updated: $profile")
+        } catch (e: Exception) {
+            println("error during updating profile: $e")
+        }
+    }
+
+    fun getUserProfile() : MutableStateFlow<UserProfile?> {
+        return _userProfile
     }
 }
