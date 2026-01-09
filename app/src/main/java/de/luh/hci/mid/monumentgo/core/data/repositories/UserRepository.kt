@@ -52,7 +52,7 @@ class UserRepository {
             filter {
                 eq("id", userId)
             }
-        }.decodeAs<UserProfile>()
+        }.decodeSingle<UserProfile>()
         _userProfile.value = profile
     }
 
