@@ -33,8 +33,7 @@ fun MainMapScreen(
     viewModel: MainMapViewModel = MainMapViewModel(monumentRepository)
 ) {
     LaunchedEffect(Unit) {
-        monumentRepository.updateMonuments()
-        Log.d("map", monumentRepository.monuments.value?.count().toString())
+        viewModel.updateMonuments()
     }
 
     return Scaffold(

@@ -21,14 +21,14 @@ class MonumentRepository {
     val monuments: StateFlow<Set<Monument>?> = _monuments.asStateFlow()
 
     private val _discoveredMonuments = MutableStateFlow<Set<Monument>>(setOf())
-    val discoveredMonuments: StateFlow<Set<Monument>?> = _monuments.asStateFlow()
+    val discoveredMonuments: StateFlow<Set<Monument>?> = _discoveredMonuments.asStateFlow()
 
     suspend fun updateMonuments() {
         try {
             val monuments = supabase.postgrest.rpc("get_monuments").decodeList<Monument>()
             _monuments.value = monuments.toSet()
         } catch (e: Exception) {
-            Log.d("db", "Error: ${e.message}")
+            Log.e("db", "Error: ${e.message}")
         }
     }
 
@@ -36,20 +36,10 @@ class MonumentRepository {
         val userId = supabase.auth.currentUserOrNull()?.id
         if (userId == null) throw Exception("User is not logged in")
         try {
-            val discoveredMonuments = supabase.from("monuments").select {
-                Columns.raw("""
-                *,
-                user_discovered_monuments!inner(
-                    user_id
-                )
-            """.trimIndent())
-                filter {
-                    eq("user_discovered_monuments.user_id", userId)
-                }
-            }.decodeList<Monument>()
+            val discoveredMonuments = supabase.postgrest.rpc("get_discovered_monuments").decodeList<Monument>()
             _discoveredMonuments.value = discoveredMonuments.toSet()
         } catch (e: Exception) {
-            Log.d("db", "Error: ${e.message}")
+            Log.e("db", "Error: ${e.message}")
         }
     }
 
