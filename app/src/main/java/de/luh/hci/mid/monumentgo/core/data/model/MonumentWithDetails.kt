@@ -1,10 +1,13 @@
 package de.luh.hci.mid.monumentgo.core.data.model
 
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonObject
 
+@Serializable
 data class MonumentWithDetails(
     val id: Int,
-    val coordinate: GisCoordinate,
+    val lat: Double,
+    val lon: Double,
     val name: String,
     val qid: Int,
     val wikiUrl: String,

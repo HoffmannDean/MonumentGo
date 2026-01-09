@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -50,78 +51,85 @@ fun LoginScreen(
     }
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    return Box(
-        modifier = Modifier.fillMaxSize().padding(16.dp),
-        contentAlignment = Alignment.Center,
-    ) {
-        ElevatedCard {
-            Column(
-                modifier = Modifier.padding(36.dp),
-                verticalArrangement = Arrangement.SpaceEvenly,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Start
-                ) {
-                    Text(
-                        text = "Einloggen",
-                        style = MaterialTheme.typography.headlineMedium
-                    )
-                }
-                Spacer(modifier = Modifier.height(48.dp))
-                Column {
-                    Text("Email")
-                    TextField(
-                        modifier = Modifier.fillMaxWidth(),
-                        value = uiState.email,
-                        onValueChange = { viewModel.changeEmail(it) },
-                        placeholder = {
-                            Text(
-                                text = "email@example.com"
-                            )
-                        }
-                    )
-                    Spacer(modifier = Modifier.height(24.dp))
-                    Text("Passwort")
-                    TextField(
-                        modifier = Modifier.fillMaxWidth(),
-                        value = uiState.password,
-                        onValueChange = { viewModel.changePassword(it) },
-                        visualTransformation = PasswordVisualTransformation(),
-                    )
-                    if (uiState.error != null) {
-                        Text(
-                            text = uiState.error ?: "Error occurred during login.",
-                            color = MaterialTheme.colorScheme.error
-                        )
-                    }
-                }
-                Spacer(modifier = Modifier.height(48.dp))
+    return Scaffold { paddingValues ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues),
+            contentAlignment = Alignment.Center,
+        ) {
+            ElevatedCard {
                 Column(
+                    modifier = Modifier.padding(36.dp),
+                    verticalArrangement = Arrangement.SpaceEvenly,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    ElevatedButton(
-                        onClick = {
-                            viewModel.viewModelScope.launch {
-                                val response = viewModel.login()
-                                if (response is AuthResponse.Success) {
-                                    Log.d("auth", "Logged in as ${response.profile.username}.")
-                                    navController.navigate(Screen.MainMap.route)
-                                } else if (response is AuthResponse.Error) {
-                                    Log.d("auth", response.message ?: "Error occurred during login.")
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Start
+                    ) {
+                        Text(
+                            text = "Einloggen",
+                            style = MaterialTheme.typography.headlineMedium
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(48.dp))
+                    Column {
+                        Text("Email")
+                        TextField(
+                            modifier = Modifier.fillMaxWidth(),
+                            value = uiState.email,
+                            onValueChange = { viewModel.changeEmail(it) },
+                            placeholder = {
+                                Text(
+                                    text = "email@example.com"
+                                )
+                            }
+                        )
+                        Spacer(modifier = Modifier.height(24.dp))
+                        Text("Passwort")
+                        TextField(
+                            modifier = Modifier.fillMaxWidth(),
+                            value = uiState.password,
+                            onValueChange = { viewModel.changePassword(it) },
+                            visualTransformation = PasswordVisualTransformation(),
+                        )
+                        if (uiState.error != null) {
+                            Text(
+                                text = uiState.error ?: "Error occurred during login.",
+                                color = MaterialTheme.colorScheme.error
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(48.dp))
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        ElevatedButton(
+                            onClick = {
+                                viewModel.viewModelScope.launch {
+                                    val response = viewModel.login()
+                                    if (response is AuthResponse.Success) {
+                                        Log.d("auth", "Logged in as ${response.profile.username}.")
+                                        navController.navigate(Screen.MainMap.route)
+                                    } else if (response is AuthResponse.Error) {
+                                        Log.d(
+                                            "auth",
+                                            response.message ?: "Error occurred during login."
+                                        )
+                                    }
                                 }
                             }
+                        ) {
+                            Text(text = "Absenden")
                         }
-                    ) {
-                        Text(text = "Absenden")
-                    }
-                    TextButton(
-                        onClick = {
-                            navController.navigate(Screen.Register.route)
+                        TextButton(
+                            onClick = {
+                                navController.navigate(Screen.Register.route)
+                            }
+                        ) {
+                            Text("Oder erstelle ein Konto")
                         }
-                    ) {
-                        Text("Oder erstelle ein Konto")
                     }
                 }
             }
