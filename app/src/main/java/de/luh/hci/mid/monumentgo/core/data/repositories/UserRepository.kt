@@ -50,7 +50,7 @@ class UserRepository {
             filter {
                 eq("id", userId)
             }
-        }.decodeAs<UserProfile>()
+        }.decodeSingle<UserProfile>()
         _userProfile.value = profile
     }
 
@@ -65,6 +65,7 @@ class UserRepository {
         if (session == null || user == null) {
             return AuthResponse.Error("Not logged in")
         }
+        println("USER: " + user)
         updateUserProfile()
         return AuthResponse.Success(_userProfile.value!!)
     }
@@ -128,10 +129,10 @@ class UserRepository {
                     put("user_id", _userProfile.value?.id.toString())
                     put("score", score)
                 }
-            ).decodeAs<UserProfile>()
+            )
+            updateUserProfile()
 
-            _userProfile.value = profile
-            println("profile updated: $profile")
+            println("profile updated: $_userProfile")
         } catch (e: Exception) {
             println("error during updating profile: $e")
         }
