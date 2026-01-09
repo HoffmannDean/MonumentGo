@@ -45,12 +45,13 @@ class UserRepository {
 
     suspend private fun getUserProfile(userId: String): UserProfile {
         val profile = supabase.postgrest.rpc(
-            "get_profile_with_level",
+            "get_profiles_with_level",
             buildJsonObject {
-                put("user_id", userId)
+                //put("user_id", userId)
             }
         ).decodeAs<UserProfile>()
         _userProfile.value = profile
+        println(profile)
         return profile
     }
 
@@ -106,5 +107,29 @@ class UserRepository {
     suspend fun signOut() {
         supabase.auth.signOut()
         _userProfile.value = null
+    }
+
+
+    @kotlin.uuid.ExperimentalUuidApi
+    suspend fun setUserScore(score: Int) {
+        try {
+            println("PROFILE: " + _userProfile.value)
+            val profile = supabase.postgrest.rpc(
+                "set_user_score",
+                buildJsonObject {
+                    put("user_id", userProfile.value?.id.toString())
+                    put("score", score)
+                }
+            ).decodeAs<UserProfile>()
+
+            _userProfile.value = profile
+            println("profile updated: $profile")
+        } catch (e: Exception) {
+            println("error during updating profile: $e")
+        }
+    }
+
+    fun getUserProfile() : MutableStateFlow<UserProfile?> {
+        return _userProfile
     }
 }

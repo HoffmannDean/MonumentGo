@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import de.luh.hci.mid.monumentgo.core.navigation.Screen
+import de.luh.hci.mid.monumentgo.quiz.data.QuizRepository
 import kotlin.math.min
 
 

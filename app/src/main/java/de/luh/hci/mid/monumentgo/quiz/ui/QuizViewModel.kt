@@ -5,12 +5,18 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import de.luh.hci.mid.monumentgo.core.data.repositories.UserRepository
 import de.luh.hci.mid.monumentgo.quiz.data.Question
 import de.luh.hci.mid.monumentgo.quiz.data.QuizRepository
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class QuizViewModel : ViewModel() {
+class QuizViewModel(
+    private val userRepo: UserRepository = UserRepository()
+): ViewModel() {
+    init{
+        QuizRepository.currentScore = 0
+    }
     private val questions: List<Question> = QuizRepository.currentQuestions.ifEmpty {
         // if there are no question
         listOf(
@@ -39,9 +45,13 @@ class QuizViewModel : ViewModel() {
         if (selectedAnswerIndex != -1) return // already clicked
 
         selectedAnswerIndex = index
+        val currentQuestion = getCurrentQuestion()
+        if (index == currentQuestion?.correctIndex){
+            QuizRepository.currentScore++
+        }
 
         viewModelScope.launch {
-            delay(3000)
+            delay(2000)
 
             if (currentQuestionIndex < questions.size){
                 currentQuestionIndex++
