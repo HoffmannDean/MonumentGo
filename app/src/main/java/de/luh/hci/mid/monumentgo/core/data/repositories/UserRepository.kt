@@ -1,10 +1,12 @@
 package de.luh.hci.mid.monumentgo.core.data.repositories
 
 import de.luh.hci.mid.monumentgo.core.data.db.DatabaseProvider.supabase
+import de.luh.hci.mid.monumentgo.core.data.model.Monument
 import de.luh.hci.mid.monumentgo.core.data.model.UserProfile
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.exception.AuthRestException
 import io.github.jan.supabase.auth.providers.builtin.Email
+import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.postgrest
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -43,15 +45,19 @@ class UserRepository {
     private val _userProfile = MutableStateFlow<UserProfile?>(null)
     val userProfile: StateFlow<UserProfile?> = _userProfile.asStateFlow()
 
-    suspend private fun getUserProfile(userId: String): UserProfile {
-        val profile = supabase.postgrest.rpc(
-            "get_profile_with_level",
-            buildJsonObject {
-                put("user_id", userId)
+    suspend private fun updateUserProfile() {
+        val userId = supabase.auth.currentUserOrNull()?.id
+        if (userId == null) throw Exception("User is not logged in")
+        val profile = supabase.postgrest.rpc("get_profiles_with_level") {
+            filter {
+                eq("id", userId)
             }
-        ).decodeAs<UserProfile>()
+        }.decodeAs<UserProfile>()
         _userProfile.value = profile
-        return profile
+    }
+
+    suspend fun getAllUserProfiles(): List<UserProfile> {
+        return supabase.postgrest.rpc("get_profiles_with_level").decodeList<UserProfile>()
     }
 
 
@@ -61,8 +67,8 @@ class UserRepository {
         if (session == null || user == null) {
             return AuthResponse.Error("Not logged in")
         }
-        val profile = getUserProfile(user.id)
-        return AuthResponse.Success(profile)
+        updateUserProfile()
+        return AuthResponse.Success(_userProfile.value!!)
     }
 
     suspend fun signUpNewUser(username: String, email: String, password: String): AuthResponse {
@@ -75,8 +81,8 @@ class UserRepository {
             if (user == null) {
                 return AuthResponse.Error("Disable auto-confirm!")
             }
-            val profile = getUserProfile(user.id)
-            return AuthResponse.Success(profile)
+            updateUserProfile()
+            return AuthResponse.Success(_userProfile.value!!)
         } catch (e: AuthRestException) {
             return AuthResponse.Error(e.toUserMessage())
         } catch (e: Exception) {
@@ -94,8 +100,8 @@ class UserRepository {
             if (user == null) {
                 return AuthResponse.Error("Failed retrieving user")
             }
-            val profile = getUserProfile(user.id)
-            return AuthResponse.Success(profile)
+            updateUserProfile()
+            return AuthResponse.Success(_userProfile.value!!)
         } catch (e: AuthRestException) {
             return AuthResponse.Error(e.toUserMessage())
         } catch (e: Exception) {
@@ -106,5 +112,9 @@ class UserRepository {
     suspend fun signOut() {
         supabase.auth.signOut()
         _userProfile.value = null
+    }
+
+    suspend fun earnPoints(monumentId: Int, points: Int) {
+        // TODO: Implement this
     }
 }

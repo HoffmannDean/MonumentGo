@@ -8,6 +8,7 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.runtime.Composable
 import androidx.compose.foundation.layout.*
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -17,16 +18,26 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavController
 import de.luh.hci.mid.monumentgo.R
+import de.luh.hci.mid.monumentgo.core.data.repositories.AuthResponse
+import de.luh.hci.mid.monumentgo.core.data.repositories.MonumentRepository
 import de.luh.hci.mid.monumentgo.core.navigation.Screen
 import de.luh.hci.mid.monumentgo.map.ui.components.GetCurrentLocation
 import de.luh.hci.mid.monumentgo.map.ui.components.LocationPermission
 import de.luh.hci.mid.monumentgo.map.ui.components.OSMMap
+import kotlinx.coroutines.flow.count
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainMapScreen(navController: NavController) {
+fun MainMapScreen(
+    navController: NavController,
+    monumentRepository: MonumentRepository
+) {
+    LaunchedEffect(Unit) {
+        monumentRepository.updateMonuments()
+        Log.d("monument", monumentRepository.monuments.value?.count().toString())
+    }
 
-    Scaffold(
+    return Scaffold(
         topBar = {
             TopAppBar(
                 title = {},

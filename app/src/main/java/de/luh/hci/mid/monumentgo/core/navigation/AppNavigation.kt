@@ -32,7 +32,7 @@ fun AppNavigation() {
         }
 
         composable(Screen.MainMap.route) {
-            MainMapScreen(navController)
+            MainMapScreen(navController, app.monumentRepository)
         }
 
         composable(Screen.Profile.route) {

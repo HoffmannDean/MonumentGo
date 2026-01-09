@@ -4,7 +4,8 @@ import kotlinx.serialization.json.JsonObject
 
 data class MonumentWithDetails(
     val id: Int,
-    val coordinate: GisCoordinate,
+    val lat: Double,
+    val lon: Double,
     val name: String,
     val qid: Int,
     val wikiUrl: String,
