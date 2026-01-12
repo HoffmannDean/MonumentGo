@@ -25,6 +25,7 @@ fun QuizResultScreen(
     resultViewModel: QuizResultViewModel = viewModel(factory = QuizResultViewModel.Factory)
 ) {
     val currentScore : Int = QuizRepository.currentScore
+    val storedScore : Int = resultViewModel.getUserPoints()
     Scaffold(
         topBar = { CenterAlignedTopAppBar(title = { Text("Quiz results") }) },
     ) { paddingValues ->
@@ -37,13 +38,13 @@ fun QuizResultScreen(
         ) {
             Text("${currentScore} / ${resultViewModel.quizResults.size} correct")
 
-            Text("${resultViewModel.getUserPoints()} + ${currentScore}")
+            Text("${storedScore} + ${currentScore}")
 
             Text("Level ${resultViewModel.level}")
 
             ElevatedButton(
                 onClick = {
-                    resultViewModel.submitScore(currentScore)
+                    resultViewModel.submitScore(currentScore + storedScore)
                     navController.navigate(Screen.MainMap.route)
                 }
             ) {
