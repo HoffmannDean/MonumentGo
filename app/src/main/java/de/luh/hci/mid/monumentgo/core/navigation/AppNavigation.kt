@@ -13,6 +13,7 @@ import de.luh.hci.mid.monumentgo.auth.ui.register.RegisterScreen
 import de.luh.hci.mid.monumentgo.camera.ui.CameraScreen
 import de.luh.hci.mid.monumentgo.infoscreen.ui.ImageInfoScreen
 import de.luh.hci.mid.monumentgo.infoscreen.ui.InfoViewModel
+import de.luh.hci.mid.monumentgo.leaderboard.ui.LeaderboardScreen
 import de.luh.hci.mid.monumentgo.map.ui.screen.MainMapScreen
 import de.luh.hci.mid.monumentgo.profile.ui.ProfileScreen
 import de.luh.hci.mid.monumentgo.quiz.data.QuizResultScreen
@@ -69,6 +70,10 @@ fun AppNavigation() {
 
         composable(Screen.Register.route) {
             RegisterScreen(navController)
+        }
+
+        composable(Screen.Leaderboard.route) {
+            LeaderboardScreen(navController)
         }
 
     }

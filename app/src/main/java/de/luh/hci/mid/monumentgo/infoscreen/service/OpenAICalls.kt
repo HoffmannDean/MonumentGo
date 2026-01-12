@@ -56,6 +56,8 @@ fun describeImage(imageFile: File, apiKey: String, callback: (String?) -> Unit) 
         override fun onResponse(call: Call, response: Response) {
             response.use {
                 if (!response.isSuccessful) {
+                    val errorBody = response.body?.string()
+                    println("OPENAI ERROR: $errorBody")
                     callback("API Error: ${response.code}")
                 } else {
                     val json = JSONObject(response.body!!.string())

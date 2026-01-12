@@ -20,5 +20,6 @@ sealed class Screen(val route: String, val arg: String = "") {
     object Login : Screen("login")
 
     object Register : Screen("register")
+    object Leaderboard : Screen("leaderboard")
 
 }

@@ -19,86 +19,29 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import de.luh.hci.mid.monumentgo.leaderboard.data.LeaderboardEntry
+import de.luh.hci.mid.monumentgo.leaderboard.data.LeaderboardViewModel
 
-data class LeaderboardEntry(
-    val rank: Int,
-    val name: String,
-    val score: Int,
-    val isCurrentUser: Boolean = false
-)
+
 @Composable
-fun LeaderboardScreen() {
-    val allPlayers = listOf(
+fun LeaderboardScreen(
+    navController: NavController,
+    viewModel: LeaderboardViewModel = viewModel(factory = LeaderboardViewModel.Factory)) {
+    val allPlayers by viewModel.leaderboardEntries.collectAsState(initial = emptyList())
 
-        LeaderboardEntry(1, "Max", 121798),
-
-        LeaderboardEntry(2, "Florian", 68277),
-
-        LeaderboardEntry(3, "Thorsten", 51050),
-
-        LeaderboardEntry(4, "Sarah", 49500),
-
-        LeaderboardEntry(5, "Andreas", 48210),
-
-        LeaderboardEntry(6, "Julia", 47800),
-
-        LeaderboardEntry(7, "Daniel", 46550),
-
-        LeaderboardEntry(8, "Lisa", 45100),
-
-        LeaderboardEntry(9, "Kevin", 44900),
-
-        LeaderboardEntry(10, "Maria", 43250),
-
-        LeaderboardEntry(11, "Stefan", 42100),
-
-        LeaderboardEntry(12, "Anna", 41500),
-
-        LeaderboardEntry(13, "Patrick", 40200),
-
-        LeaderboardEntry(14, "Laura", 39800),
-
-        LeaderboardEntry(15, "Christian", 38500),
-
-        LeaderboardEntry(16, "Nadine", 37900),
-
-        LeaderboardEntry(17, "Tobias", 36400),
-
-        LeaderboardEntry(18, "Vanessa", 35200),
-
-        LeaderboardEntry(19, "Marco", 34800),
-
-        LeaderboardEntry(20, "Sabrina", 33500),
-
-        LeaderboardEntry(21, "Alexander", 32100, true), // Target User
-
-        LeaderboardEntry(22, "Melanie", 31400),
-
-        LeaderboardEntry(23, "Philipp", 30500),
-
-        LeaderboardEntry(24, "Jana", 29800),
-
-        LeaderboardEntry(25, "Tim", 28500),
-
-        LeaderboardEntry(26, "Christina", 27200),
-
-        LeaderboardEntry(27, "Dennis", 26400),
-
-        LeaderboardEntry(28, "Nicole", 25100),
-
-        LeaderboardEntry(29, "Jan", 24500),
-
-        LeaderboardEntry(30, "Katharina", 232)
-
-    )
+    // Auto-scroll to current user logic
     val listState = rememberLazyListState()
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(allPlayers) {
         val userIndex = allPlayers.indexOfFirst { it.isCurrentUser }
         if (userIndex >= 0) listState.animateScrollToItem(userIndex)
     }
@@ -122,7 +65,7 @@ fun LeaderboardScreen() {
                 color = MaterialTheme.colorScheme.primary
             )
             Text(
-                text = "Level 2",
+                text = "Level ${viewModel.getUserLevel()}",
                 style = MaterialTheme.typography.headlineSmall,
                 color = MaterialTheme.colorScheme.secondary,
                 modifier = Modifier.padding(top = 8.dp, bottom = 24.dp)

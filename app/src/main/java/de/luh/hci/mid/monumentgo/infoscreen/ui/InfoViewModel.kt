@@ -14,6 +14,8 @@ import de.luh.hci.mid.monumentgo.BuildConfig
 import de.luh.hci.mid.monumentgo.infoscreen.service.describeImage
 import de.luh.hci.mid.monumentgo.infoscreen.service.extractMonumentName
 import de.luh.hci.mid.monumentgo.infoscreen.service.generateQuiz
+import de.luh.hci.mid.monumentgo.quiz.data.Question
+import de.luh.hci.mid.monumentgo.quiz.data.QuizRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File
@@ -53,6 +55,28 @@ class InfoViewModel(
             }
         }
     }
+
+    fun prepareQuizForNavigation() {
+        val mappedQuestions = quiz.map { item: Triple<String, String, List<String>> ->
+
+            val questionText = item.first
+            val correctAnswer = item.second
+            val wrongAnswers = item.third
+
+            val allOptions = (wrongAnswers + correctAnswer).shuffled()
+
+            val correctIndex = allOptions.indexOf(correctAnswer)
+
+            Question(
+                text = questionText,
+                answers = allOptions,
+                correctIndex = correctIndex
+            )
+        }
+
+        QuizRepository.currentQuestions = mappedQuestions
+    }
+
 
     companion object {
 

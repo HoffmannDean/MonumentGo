@@ -1,13 +1,14 @@
 package de.luh.hci.mid.monumentgo.core.data.repositories
 
+import android.R.attr.order
 import de.luh.hci.mid.monumentgo.core.data.db.DatabaseProvider.supabase
-import de.luh.hci.mid.monumentgo.core.data.model.Monument
 import de.luh.hci.mid.monumentgo.core.data.model.UserProfile
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.exception.AuthRestException
 import io.github.jan.supabase.auth.providers.builtin.Email
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.postgrest
+import io.github.jan.supabase.postgrest.query.Order
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -67,6 +68,7 @@ class UserRepository {
         if (session == null || user == null) {
             return AuthResponse.Error("Not logged in")
         }
+        println("USER: " + user)
         updateUserProfile()
         return AuthResponse.Success(_userProfile.value!!)
     }
@@ -116,5 +118,39 @@ class UserRepository {
 
     suspend fun earnPoints(monumentId: Int, points: Int) {
         // TODO: Implement this
+    }
+
+
+    @kotlin.uuid.ExperimentalUuidApi
+    suspend fun setUserScore(score: Int) { // works with DEFINER
+        try {
+            val storedScore : Int = _userProfile.value?.points ?: 0
+            println("CURRENT STORED SCORE: $storedScore")
+            println("UUID: " + _userProfile.value?.id.toString())
+            val profile = supabase.postgrest.rpc(
+                "set_user_score",
+                buildJsonObject {
+                    put("user_id", _userProfile.value?.id.toString())
+                    put("score", score + storedScore)
+                }
+            )
+            updateUserProfile()
+
+            println("profile updated: $_userProfile")
+        } catch (e: Exception) {
+            println("error during updating profile: $e")
+        }
+    }
+
+    fun getUserProfile() : MutableStateFlow<UserProfile?> {
+        return _userProfile
+    }
+    
+    fun getUserLevel() : Int {
+        return _userProfile.value?.level ?: -1
+    }
+
+    suspend fun getLeaderboard(): List<UserProfile> {
+        return supabase.postgrest.rpc("get_leaderboard").decodeList<UserProfile>()
     }
 }

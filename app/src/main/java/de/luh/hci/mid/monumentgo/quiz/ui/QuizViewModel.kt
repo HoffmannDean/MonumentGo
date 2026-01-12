@@ -5,32 +5,24 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import de.luh.hci.mid.monumentgo.core.data.repositories.UserRepository
+import de.luh.hci.mid.monumentgo.quiz.data.Question
+import de.luh.hci.mid.monumentgo.quiz.data.QuizRepository
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-data class Question(
-    val text: String,
-    val answers: List<String>,
-    val correctIndex: Int // store which answer is actually correct
-)
-class QuizViewModel : ViewModel() {
-    private val questions = listOf(
-        Question(
-            text = "Wann wurde der Triumphbogen erbaut?",
-            answers = listOf("1906", "1810", "1836"),
-            correctIndex = 2
-        ),
-        Question(
-            text = "Wie hoch ist der Eiffelturm (inkl. Spitze)?",
-            answers = listOf("330m", "250m", "400m"),
-            correctIndex = 0
-        ),
-        Question(
-            text = "Welches Element hat die Ordnungszahl 1?",
-            answers = listOf("Helium", "Wasserstoff", "Lithium"),
-            correctIndex = 1
+class QuizViewModel(
+    private val userRepo: UserRepository = UserRepository()
+): ViewModel() {
+    init{
+        QuizRepository.currentScore = 0
+    }
+    private val questions: List<Question> = QuizRepository.currentQuestions.ifEmpty {
+        // if there are no question
+        listOf(
+            Question("Keine Daten geladen", listOf("Ok"), 0)
         )
-    )
+    }
 
     var currentQuestionIndex by mutableIntStateOf(0)
         private set
@@ -53,9 +45,13 @@ class QuizViewModel : ViewModel() {
         if (selectedAnswerIndex != -1) return // already clicked
 
         selectedAnswerIndex = index
+        val currentQuestion = getCurrentQuestion()
+        if (index == currentQuestion?.correctIndex){
+            QuizRepository.currentScore++
+        }
 
         viewModelScope.launch {
-            delay(3000)
+            delay(1000)
 
             if (currentQuestionIndex < questions.size){
                 currentQuestionIndex++
