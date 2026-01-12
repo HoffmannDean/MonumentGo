@@ -36,26 +36,28 @@ fun QuizResultScreen(
             verticalArrangement = Arrangement.SpaceEvenly,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("${currentScore} / ${resultViewModel.quizResults.size} correct")
+            Text("${currentScore} / ${resultViewModel.getQuestionsSize()} correct")
 
             Text("${storedScore} + ${currentScore}")
 
-            Text("Level ${resultViewModel.level}")
+            Text("Level ${resultViewModel.getUserLevel()}")
 
             ElevatedButton(
                 onClick = {
-                    resultViewModel.submitScore(currentScore + storedScore)
+                    resultViewModel.submitScore(currentScore)
                     navController.navigate(Screen.MainMap.route)
                 }
             ) {
                 Text("Back to Map")
             }
+            ElevatedButton(
+                onClick = {
+                    resultViewModel.submitScore(currentScore)
+                    navController.navigate(Screen.Leaderboard.route)
+                }
+            ) {
+                Text("Leaderboard")
+            }
         }
     }
-}
-
-@Preview
-@Composable
-fun QuizResultScreenPreview() {
-    QuizResultScreen(viewModel(factory = QuizResultViewModel.Factory))
 }

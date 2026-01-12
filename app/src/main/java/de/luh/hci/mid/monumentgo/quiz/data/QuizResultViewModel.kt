@@ -11,27 +11,9 @@ import kotlin.uuid.ExperimentalUuidApi
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import de.luh.hci.mid.monumentgo.MonumentGo
 
-/*
-data class Question(
-    val text: String,
-    val answers: List<String>,
-    val correctIndex: Int, // store which answer is actually correct
-    val selectedIndex: Int // tapped answer by user
-)
-*/
-
 class QuizResultViewModel(
     private val userRepo: UserRepository
 ) : ViewModel() {
-    val quizResults: Map<String, Boolean> = mapOf(
-        // questions.forEach { entry -> entry.name to entry.correctIndex == entry.selectedIndex }
-        "Q1" to true,
-        "Q2" to false,
-        "Q3" to true
-    )
-
-    var points: UInt = 12345u
-
     val level: UInt = 2u
 
     fun getUserPoints() : Int {
@@ -47,6 +29,14 @@ class QuizResultViewModel(
             viewModelScope.launch {
             userRepo.setUserScore(newScore)
         }
+    }
+
+    fun getQuestionsSize() : Int {
+        return QuizRepository.currentQuestions.size
+    }
+
+    fun getUserLevel() : Int {
+        return userRepo.getUserLevel()
     }
 
     companion object {
