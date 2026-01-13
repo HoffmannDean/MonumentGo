@@ -11,6 +11,7 @@ import androidx.camera.core.SurfaceRequest
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.lifecycle.awaitInstance
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
@@ -90,10 +91,6 @@ fun CameraScreen(navController: NavController) {
             outputOptions,
             ContextCompat.getMainExecutor(context),
             object : ImageCapture.OnImageSavedCallback {
-                override fun onCaptureStarted() {
-                    outputOptions.file?.delete()
-                    super.onCaptureStarted()
-                }
                 override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
                     outputFileResults.savedUri?.path?.let {
                         Log.d("CameraCapture", it)
@@ -120,7 +117,7 @@ fun CameraScreen(navController: NavController) {
                     Text("Scan Monument")
                 },
                 navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
+                    IconButton(onClick = { navController.navigate(Screen.MainMap.route) }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Go Back"
@@ -131,33 +128,7 @@ fun CameraScreen(navController: NavController) {
         },
         floatingActionButton = {
             FloatingActionButton({
-                val imageCapture = ImageCapture.Builder()
-                    .setTargetRotation(context.display.rotation)
-                    .build()
-
-                val outputFileOptions = ImageCapture.OutputFileOptions.Builder(
-                    File(
-                        context.filesDir,
-                        "imageToScan.png"
-                    )
-                ).build()
-
-                /*
-                    imageCapture.takePicture(
-                        cameraExecutor,
-                        outputFileOptions,
-                        object : ImageCapture.OnImageSavedCallback {
-                            override fun onError(exception: ImageCaptureException) {
-                                TODO("Not yet implemented")
-                            }
-
-                            override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-                                TODO("Not yet implemented")
-                            }
-                        }
-                    )
-                    */
-                navController.navigate(Screen.Info.route)
+                capturePhoto(context, imageCapture)
             }) {
                 Icon(
                     Icons.Default.Add,
@@ -166,11 +137,13 @@ fun CameraScreen(navController: NavController) {
             }
         },
         floatingActionButtonPosition = FabPosition.Center
-    ) {
+    ) { paddingValues ->
         surfaceRequest?.let { request ->
             CameraXViewfinder(
                 request,
-                Modifier.fillMaxSize()
+                Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
             )
         }
     }
