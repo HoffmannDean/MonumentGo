@@ -13,10 +13,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,81 +28,108 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import de.luh.hci.mid.monumentgo.core.data.repositories.AuthResponse
+import de.luh.hci.mid.monumentgo.core.data.repositories.UserRepository
+import de.luh.hci.mid.monumentgo.core.navigation.Screen
 import de.luh.hci.mid.monumentgo.core.ui.theme.MonumentGoTheme
 import kotlinx.coroutines.launch
 
 @Composable
 fun LoginScreen(
+    navController: NavController,
+    userRepository: UserRepository,
     viewModel: LoginViewModel = viewModel()
 ) {
+    LaunchedEffect(Unit) {
+        val response = userRepository.trySilentSignIn()
+        if (response is AuthResponse.Success) {
+            Log.d("auth", "Logged in as ${response.profile.username}.")
+            navController.navigate(Screen.MainMap.route)
+        }
+    }
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    return Box(
-        modifier = Modifier.fillMaxSize().padding(16.dp),
-        contentAlignment = Alignment.Center,
-    ) {
-        ElevatedCard {
-            Column(
-                modifier = Modifier.padding(36.dp),
-                verticalArrangement = Arrangement.SpaceEvenly,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Start
-                ) {
-                    Text(
-                        text = "Einloggen",
-                        style = MaterialTheme.typography.headlineMedium
-                    )
-                }
-                Spacer(modifier = Modifier.height(48.dp))
-                Column {
-                    Text("Email")
-                    TextField(
-                        modifier = Modifier.fillMaxWidth(),
-                        value = uiState.email,
-                        onValueChange = { viewModel.changeEmail(it) },
-                        placeholder = {
-                            Text(
-                                text = "email@example.com"
-                            )
-                        }
-                    )
-                    Spacer(modifier = Modifier.height(24.dp))
-                    Text("Passwort")
-                    TextField(
-                        modifier = Modifier.fillMaxWidth(),
-                        value = uiState.password,
-                        onValueChange = { viewModel.changePassword(it) },
-                        visualTransformation = PasswordVisualTransformation(),
-                    )
-                }
-                Spacer(modifier = Modifier.height(48.dp))
+    return Scaffold { paddingValues ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues),
+            contentAlignment = Alignment.Center,
+        ) {
+            ElevatedCard {
                 Column(
+                    modifier = Modifier.padding(36.dp),
+                    verticalArrangement = Arrangement.SpaceEvenly,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    ElevatedButton(
-                        onClick = {
-                            viewModel.viewModelScope.launch {
-                                val response = viewModel.login()
-                                if (response is AuthResponse.Success) {
-                                    Log.d("auth", response.profile.toString())
-                                } else if (response is AuthResponse.Error) {
-                                    Log.d("auth", response.message ?: "Error registering user.")
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Start
+                    ) {
+                        Text(
+                            text = "Einloggen",
+                            style = MaterialTheme.typography.headlineMedium
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(48.dp))
+                    Column {
+                        Text("Email")
+                        TextField(
+                            modifier = Modifier.fillMaxWidth(),
+                            value = uiState.email,
+                            onValueChange = { viewModel.changeEmail(it) },
+                            placeholder = {
+                                Text(
+                                    text = "email@example.com"
+                                )
+                            }
+                        )
+                        Spacer(modifier = Modifier.height(24.dp))
+                        Text("Passwort")
+                        TextField(
+                            modifier = Modifier.fillMaxWidth(),
+                            value = uiState.password,
+                            onValueChange = { viewModel.changePassword(it) },
+                            visualTransformation = PasswordVisualTransformation(),
+                        )
+                        if (uiState.error != null) {
+                            Text(
+                                text = uiState.error ?: "Error occurred during login.",
+                                color = MaterialTheme.colorScheme.error
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(48.dp))
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        ElevatedButton(
+                            onClick = {
+                                viewModel.viewModelScope.launch {
+                                    val response = viewModel.login()
+                                    if (response is AuthResponse.Success) {
+                                        Log.d("auth", "Logged in as ${response.profile.username}.")
+                                        navController.navigate(Screen.MainMap.route)
+                                    } else if (response is AuthResponse.Error) {
+                                        Log.d(
+                                            "auth",
+                                            response.message ?: "Error occurred during login."
+                                        )
+                                    }
                                 }
                             }
+                        ) {
+                            Text(text = "Absenden")
                         }
-                    ) {
-                        Text(text = "Absenden")
-                    }
-                    TextButton(
-                        onClick = {
-                            Log.d("nav", "Navigate to RegisterScreen")
+                        TextButton(
+                            onClick = {
+                                navController.navigate(Screen.Register.route)
+                            }
+                        ) {
+                            Text("Oder erstelle ein Konto")
                         }
-                    ) {
-                        Text("Oder erstelle ein Konto")
                     }
                 }
             }
@@ -112,6 +141,6 @@ fun LoginScreen(
 @Composable
 fun LoginScreenPreview() {
     MonumentGoTheme {
-        LoginScreen()
+        LoginScreen(rememberNavController(), UserRepository())
     }
 }

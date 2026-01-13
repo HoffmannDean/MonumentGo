@@ -5,5 +5,6 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class Monument(
     val id: Int,
-    val coordinate: GisCoordinate
+    val lat: Double,
+    val lon: Double
 )

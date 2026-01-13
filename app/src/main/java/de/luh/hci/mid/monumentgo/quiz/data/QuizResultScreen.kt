@@ -1,5 +1,6 @@
 package de.luh.hci.mid.monumentgo.quiz.data
 
+import android.R.attr.onClick
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,10 +15,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import de.luh.hci.mid.monumentgo.core.navigation.Screen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun QuizResultScreen(resultViewModel: QuizResultViewModel = viewModel()) {
+fun QuizResultScreen(
+    navController: NavController,
+    resultViewModel: QuizResultViewModel = viewModel(factory = QuizResultViewModel.Factory)
+) {
+    val currentScore : Int = QuizRepository.currentScore
+    val storedScore : Int = resultViewModel.getUserPoints()
     Scaffold(
         topBar = { CenterAlignedTopAppBar(title = { Text("Quiz results") }) },
     ) { paddingValues ->
@@ -28,19 +36,28 @@ fun QuizResultScreen(resultViewModel: QuizResultViewModel = viewModel()) {
             verticalArrangement = Arrangement.SpaceEvenly,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("${resultViewModel.quizResults.count { (_, value) -> value }} / ${resultViewModel.quizResults.size} correct")
+            Text("${currentScore} / ${resultViewModel.getQuestionsSize()} correct")
 
-            Text(resultViewModel.points.toString())
+            Text("${storedScore} + ${currentScore}")
 
-            Text("Level ${resultViewModel.level}")
+            Text("Level ${resultViewModel.getUserLevel()}")
 
-            ElevatedButton(onClick = {}) { Text("Back to Map") }
+            ElevatedButton(
+                onClick = {
+                    resultViewModel.submitScore(currentScore)
+                    navController.navigate(Screen.MainMap.route)
+                }
+            ) {
+                Text("Back to Map")
+            }
+            ElevatedButton(
+                onClick = {
+                    resultViewModel.submitScore(currentScore)
+                    navController.navigate(Screen.Leaderboard.route)
+                }
+            ) {
+                Text("Leaderboard")
+            }
         }
     }
-}
-
-@Preview
-@Composable
-fun QuizResultScreenPreview() {
-    QuizResultScreen(viewModel(factory = QuizResultViewModel.Factory))
 }

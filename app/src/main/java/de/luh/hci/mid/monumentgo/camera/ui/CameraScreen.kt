@@ -131,7 +131,33 @@ fun CameraScreen(navController: NavController) {
         },
         floatingActionButton = {
             FloatingActionButton({
-                capturePhoto(context, imageCapture)
+                val imageCapture = ImageCapture.Builder()
+                    .setTargetRotation(context.display.rotation)
+                    .build()
+
+                val outputFileOptions = ImageCapture.OutputFileOptions.Builder(
+                    File(
+                        context.filesDir,
+                        "imageToScan.png"
+                    )
+                ).build()
+
+                /*
+                    imageCapture.takePicture(
+                        cameraExecutor,
+                        outputFileOptions,
+                        object : ImageCapture.OnImageSavedCallback {
+                            override fun onError(exception: ImageCaptureException) {
+                                TODO("Not yet implemented")
+                            }
+
+                            override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
+                                TODO("Not yet implemented")
+                            }
+                        }
+                    )
+                    */
+                navController.navigate(Screen.Info.route)
             }) {
                 Icon(
                     Icons.Default.Add,

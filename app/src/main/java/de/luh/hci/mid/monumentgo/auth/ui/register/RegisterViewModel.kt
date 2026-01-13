@@ -11,7 +11,8 @@ import kotlinx.coroutines.flow.update
 data class RegisterState(
     val username: String = "",
     val email: String = "",
-    val password: String = ""
+    val password: String = "",
+    val error: String? = null
 )
 
 class RegisterViewModel(
@@ -45,10 +46,16 @@ class RegisterViewModel(
     }
 
     suspend fun register(): AuthResponse {
-        return userRepo.signUpNewUser(
+        val response = userRepo.signUpNewUser(
             _uiState.value.username,
             _uiState.value.email,
             _uiState.value.password
         )
+        _uiState.update { currentState ->
+            currentState.copy(
+                error = if (response is AuthResponse.Error) response.message else null
+            )
+        }
+        return response
     }
 }

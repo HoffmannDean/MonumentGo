@@ -1,7 +1,6 @@
 package de.luh.hci.mid.monumentgo.auth.ui.login
 
 import androidx.lifecycle.ViewModel
-import de.luh.hci.mid.monumentgo.auth.ui.register.RegisterState
 import de.luh.hci.mid.monumentgo.core.data.repositories.AuthResponse
 import de.luh.hci.mid.monumentgo.core.data.repositories.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -11,14 +10,15 @@ import kotlinx.coroutines.flow.update
 
 data class LoginState(
     val email: String = "",
-    val password: String = ""
+    val password: String = "",
+    val error: String? = null
 )
 
 class LoginViewModel(
     private val userRepo: UserRepository = UserRepository()
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow(RegisterState())
-    val uiState: StateFlow<RegisterState> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow(LoginState())
+    val uiState: StateFlow<LoginState> = _uiState.asStateFlow()
 
     fun changeEmail(email: String) {
         _uiState.update { currentState ->
@@ -37,9 +37,15 @@ class LoginViewModel(
     }
 
     suspend fun login(): AuthResponse {
-        return userRepo.signInWithEmail(
+        val response = userRepo.signInWithEmail(
             _uiState.value.email,
             _uiState.value.password,
         )
+        _uiState.update { currentState ->
+            currentState.copy(
+                error = if (response is AuthResponse.Error) response.message else null
+            )
+        }
+        return response
     }
 }

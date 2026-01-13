@@ -54,8 +54,11 @@ android {
 
 dependencies {
     // Added by Erik (MainScreen)
-    implementation("androidx.navigation:navigation-compose:2.9.6")
-    implementation("org.osmdroid:osmdroid-android:6.1.20")
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.osmdroid)
+    implementation(libs.play.services.location)
+    implementation(libs.kotlinx.coroutines.play.services)
+    implementation(libs.okhttp)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -84,6 +87,8 @@ dependencies {
     implementation(libs.androidx.navigation.runtime.ktx)
     implementation(libs.vision.internal.vkp)
     implementation(libs.androidx.compose.animation)
+    implementation(libs.androidx.preference.ktx)
+    implementation(libs.play.services.location)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -91,6 +96,4 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
-    implementation("com.squareup.okhttp3:okhttp:4.12.0")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.6")
 }
