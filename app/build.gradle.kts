@@ -74,7 +74,7 @@ dependencies {
     implementation(libs.androidx.compose.material.icons)
 
     // CAMERA RELATED
-    implementation(libs.androidx.camera.view)
+    implementation(libs.androidx.camera.compose)
     implementation(libs.androidx.camera.camera2)
     implementation(libs.androidx.camera.lifecycle)
 

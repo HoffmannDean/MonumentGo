@@ -47,7 +47,7 @@ supabase-kt-postgrest = { group = "io.github.jan-tennert.supabase", name = "post
 ktor-client = { group = "io.ktor", name = "ktor-client-android", version.ref = "ktorVersion" }
 androidx-compose-material-icons = {group = "androidx.compose.material", name = "material-icons-core-android", version.ref = "materialIconsCore"}
 androidx-camera-camera2 = { group = "androidx.camera", name = "camera-camera2", version.ref = "camera"}
-androidx-camera-view = { group = "androidx.camera", name = "camera-view", version.ref = "camera" }
+androidx-camera-compose = { group = "androidx.camera", name = "camera-compose", version.ref = "camera" }
 androidx-camera-lifecycle = { group = "androidx.camera", name = "camera-lifecycle", version.ref = "camera" }
 
 vision-internal-vkp = { group = "com.google.mlkit", name = "vision-internal-vkp", version.ref = "visionInternalVkp" }

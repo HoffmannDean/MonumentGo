@@ -45,7 +45,7 @@ fun AppNavigation() {
         }
 
         composable(Screen.Camera.route) {
-            CameraScreen(navController)
+            CameraScreen(navController,)
         }
 
         composable(Screen.Info.route) {

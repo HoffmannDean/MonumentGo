@@ -91,7 +91,6 @@ class InfoViewModel(
                 return InfoViewModel(
                     application,
                     imageFile
-
                 ) as T
             }
         }
