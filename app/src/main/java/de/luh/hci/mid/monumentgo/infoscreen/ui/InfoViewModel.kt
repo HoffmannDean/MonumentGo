@@ -87,7 +87,7 @@ class InfoViewModel(
             ): T {
                 // Get the Application object from extras
                 val application = checkNotNull(extras[APPLICATION_KEY])
-                val imageFile = File(application.filesDir, "imageToScan.png")
+                val imageFile = File(application.filesDir, "imageToScan.jpg")
                 return InfoViewModel(
                     application,
                     imageFile
