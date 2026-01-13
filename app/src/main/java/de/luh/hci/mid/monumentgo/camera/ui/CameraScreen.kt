@@ -1,8 +1,6 @@
 package de.luh.hci.mid.monumentgo.camera.ui
 
-import android.content.ContentValues
 import android.content.Context
-import android.provider.MediaStore
 import android.util.Log
 import androidx.camera.compose.CameraXViewfinder
 import androidx.camera.core.CameraSelector
@@ -80,10 +78,6 @@ fun CameraScreen(navController: NavController) {
         val capture = imageCapture ?: return
 
         val name = "imageToScan.jpg"
-        val contentValues = ContentValues().apply {
-            put(MediaStore.Images.Media.DISPLAY_NAME, name)
-            put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
-        }
 
         val outputOptions = ImageCapture.OutputFileOptions.Builder(
             File(
