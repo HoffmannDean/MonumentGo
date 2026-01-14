@@ -14,6 +14,7 @@ import de.luh.hci.mid.monumentgo.BuildConfig
 import de.luh.hci.mid.monumentgo.infoscreen.service.describeImage
 import de.luh.hci.mid.monumentgo.infoscreen.service.extractMonumentName
 import de.luh.hci.mid.monumentgo.infoscreen.service.generateQuiz
+import de.luh.hci.mid.monumentgo.infoscreen.service.generateTTS
 import de.luh.hci.mid.monumentgo.quiz.data.Question
 import de.luh.hci.mid.monumentgo.quiz.data.QuizRepository
 import kotlinx.coroutines.Dispatchers
@@ -31,6 +32,9 @@ class InfoViewModel(
     var monumentName: String by mutableStateOf("Loading...")
         private set
 
+    var ttsAudioFile: File? by mutableStateOf(null)
+        private set
+
     var quiz by mutableStateOf<List<Triple<String, String, List<String>>>>(emptyList())
         private set
 
@@ -43,6 +47,15 @@ class InfoViewModel(
                 extractMonumentName(imageFile, BuildConfig.OPENAI_API_KEY) { name ->
                     viewModelScope.launch(Dispatchers.Main) {
                         monumentName = name ?: "Unknown Monument"
+                    }
+                }
+
+                val audioFile = File(getApplication<Application>().cacheDir, "description.mp3")
+                generateTTS(description, BuildConfig.OPENAI_API_KEY, audioFile) { success ->
+                    if (success) {
+                        viewModelScope.launch(Dispatchers.Main) {
+                            ttsAudioFile = audioFile
+                        }
                     }
                 }
 
