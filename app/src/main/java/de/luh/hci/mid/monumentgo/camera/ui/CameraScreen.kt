@@ -1,7 +1,12 @@
 package de.luh.hci.mid.monumentgo.camera.ui
 
+import android.Manifest
+import android.app.Activity
 import android.content.Context
+import android.content.pm.PackageManager
 import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.compose.CameraXViewfinder
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
@@ -34,6 +39,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.app.ActivityCompat
+import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavController
@@ -44,6 +51,19 @@ import java.io.File
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CameraScreen(navController: NavController) {
+    val launcher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            // Permission Accepted: Do something
+            Log.d("CameraScreen", "PERMISSION GRANTED")
+
+        } else {
+            // Permission Denied: Do something
+            Log.d("CameraScreen", "PERMISSION DENIED")
+        }
+    }
+
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
 
@@ -138,13 +158,28 @@ fun CameraScreen(navController: NavController) {
         },
         floatingActionButtonPosition = FabPosition.Center
     ) { paddingValues ->
-        surfaceRequest?.let { request ->
-            CameraXViewfinder(
-                request,
-                Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-            )
+        when {
+            ContextCompat.checkSelfPermission(
+                context, Manifest.permission.CAMERA
+            ) == PackageManager.PERMISSION_GRANTED -> {
+                surfaceRequest?.let { request ->
+                    CameraXViewfinder(
+                        request,
+                        Modifier
+                            .fillMaxSize()
+                            .padding(paddingValues)
+                    )
+                }
+            }
+
+            ActivityCompat.shouldShowRequestPermissionRationale(
+                context as Activity, Manifest.permission.CAMERA
+            ) -> Log.i("CameraScreen", "Shop camera permissions dialog")
+
+            else -> {
+                // Asking for permission
+                launcher.launch(Manifest.permission.CAMERA)
+            }
         }
     }
 }
