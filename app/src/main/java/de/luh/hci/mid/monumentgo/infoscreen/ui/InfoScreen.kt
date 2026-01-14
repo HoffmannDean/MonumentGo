@@ -1,6 +1,7 @@
 package de.luh.hci.mid.monumentgo.infoscreen.ui
 
 import android.graphics.BitmapFactory
+import android.media.MediaPlayer
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -13,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -24,6 +26,25 @@ fun ImageInfoScreen(
     viewModel: InfoViewModel = viewModel()
 ) {
     var refresh by remember { mutableStateOf(0) }
+
+    val context = LocalContext.current
+    val audioFile = viewModel.ttsAudioFile
+
+    val mediaPlayer = remember(audioFile) {
+        audioFile?.let {
+            MediaPlayer().apply {
+                setDataSource(it.absolutePath)
+                prepare()
+            }
+        }
+    }
+
+    DisposableEffect(mediaPlayer) {
+        onDispose {
+            mediaPlayer?.release()
+        }
+    }
+
 
     LaunchedEffect(Unit) {
         viewModel.loadDescription {
@@ -47,7 +68,14 @@ fun ImageInfoScreen(
                     navController.navigate(Screen.Camera.route)
                 },
                 onVolumeClicked = {
-                    println("Text will be played")
+                    if (mediaPlayer != null)
+                    {
+                        if (mediaPlayer.isPlaying) {
+                            mediaPlayer.pause()
+                            mediaPlayer.seekTo(0)
+                        }
+                        mediaPlayer.start()
+                    }
                 }
             )
         },

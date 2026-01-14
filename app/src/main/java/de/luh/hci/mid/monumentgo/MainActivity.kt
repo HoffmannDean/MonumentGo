@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import de.luh.hci.mid.monumentgo.core.navigation.AppNavigation
 import de.luh.hci.mid.monumentgo.core.ui.theme.MonumentGoTheme
+import de.luh.hci.mid.monumentgo.infoscreen.ui.ImageInfoScreen
 
 
 class MainActivity : ComponentActivity() {
@@ -15,7 +16,6 @@ class MainActivity : ComponentActivity() {
         setContent {
             MonumentGoTheme {
                 AppNavigation()
-//                ImageInfoScreen()
             }
         }
     }

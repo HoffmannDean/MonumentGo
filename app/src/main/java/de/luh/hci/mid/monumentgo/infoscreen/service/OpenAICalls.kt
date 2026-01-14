@@ -8,6 +8,7 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import okio.IOException
 import org.json.JSONArray
@@ -69,6 +70,52 @@ fun describeImage(imageFile: File, apiKey: String, callback: (String?) -> Unit) 
                     callback(content)
                 }
             }
+        }
+    })
+}
+
+fun generateTTS(
+    description: String,
+    apiKey: String,
+    outputFile: File,
+    callback: (Boolean) -> Unit
+) {
+    val client = OkHttpClient()
+
+    val jsonBody = JSONObject()
+        .put("model", "gpt-4o-mini-tts")
+        .put("voice", "alloy")
+        .put("format", "mp3")
+        .put("input", description)
+
+    val requestBody = jsonBody
+        .toString()
+        .toRequestBody("application/json".toMediaType())
+
+    val request = Request.Builder()
+        .url("https://api.openai.com/v1/audio/speech")
+        .addHeader("Authorization", "Bearer $apiKey")
+        .post(requestBody)
+        .build()
+
+    client.newCall(request).enqueue(object : Callback {
+        override fun onFailure(call: Call, e: IOException) {
+            callback(false)
+        }
+
+        override fun onResponse(call: Call, response: Response) {
+            if (!response.isSuccessful) {
+                callback(false)
+                return
+            }
+
+            response.body?.byteStream()?.use { input ->
+                outputFile.outputStream().use { output ->
+                    input.copyTo(output)
+                }
+            }
+
+            callback(true)
         }
     })
 }
