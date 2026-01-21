@@ -70,24 +70,26 @@ fun OSMMap(
 
             val mapController = map.controller
             mapController.setZoom(15.0)
-            mapController.setCenter(org.osmdroid.util.GeoPoint(it.latitude, it.longitude))
+            mapController.setCenter(GeoPoint(it.latitude, it.longitude))
 
             // Marker hinzufügen
-            val monumentIcon = createCircleDrawable(25, 0xFFFF0000.toInt())
+            val monumentIcon = createCircleDrawable(30, 0xFFFF0000.toInt())
+            val discoveredMonumentIcon = createCircleDrawable(30, 0xFF0000FF.toInt())
             map.overlays.clear()
             if (currentState is MapState.Ready) {
-                map.overlays.addAll(currentState.monuments.map {
+                map.overlays.addAll(currentState.monuments.map { monument ->
+                    val discovered = currentState.discoveredMonuments.contains(monument)
                     Marker(map).apply {
-                        position = GeoPoint(it.lat, it.lon)
-                        icon = monumentIcon
+                        position = GeoPoint(monument.lat, monument.lon)
+                        icon = if (discovered) discoveredMonumentIcon else monumentIcon
                         setOnMarkerClickListener { marker, mapView ->
                             scope.launch {
-                                val details = viewModel.getDetails(it)
+                                val details = viewModel.getDetails(monument)
                                 if (details != null) {
                                     marker.title = details.name
-                                    marker.snippet = "Punkte: ${details.points}"
+                                    marker.snippet = "Points: ${details.points}"
                                 } else {
-                                    marker.title = "Daten konnten nicht geladen werden."
+                                    marker.title = "Failed to load data."
                                 }
                                 marker.showInfoWindow()
                             }
@@ -98,7 +100,6 @@ fun OSMMap(
             }
             val marker = Marker(map)
             marker.position = GeoPoint(it.latitude, it.longitude)
-            marker.title = "Mein Standort"
             marker.setAnchor(
                 Marker.ANCHOR_CENTER,
                 Marker.ANCHOR_BOTTOM

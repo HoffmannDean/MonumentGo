@@ -12,6 +12,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -23,6 +24,7 @@ import de.luh.hci.mid.monumentgo.core.navigation.Screen
 import de.luh.hci.mid.monumentgo.map.ui.components.GetCurrentLocation
 import de.luh.hci.mid.monumentgo.map.ui.components.LocationPermission
 import de.luh.hci.mid.monumentgo.map.ui.components.OSMMap
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -34,6 +36,8 @@ fun MainMapScreen(
     LaunchedEffect(Unit) {
         viewModel.updateMonuments()
     }
+    var currentLocation by remember { mutableStateOf<Location?>(null) }
+    val coroutineScope = rememberCoroutineScope()
 
     return Scaffold(
         topBar = {
@@ -58,7 +62,16 @@ fun MainMapScreen(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = { navController.navigate(Screen.Camera.route) }) {
+            FloatingActionButton(onClick = {
+                navController.navigate(Screen.Camera.route)
+                coroutineScope.launch {
+                    if (currentLocation == null) {
+                        Log.e("Location", "Location is null")
+                        return@launch
+                    }
+                    monumentRepository.getMonumentsAroundUser(currentLocation!!)
+                }
+            }) {
                 Icon(
                     painter = painterResource(id = R.drawable.outline_photo_camera),
                     contentDescription = "Camera"
@@ -73,7 +86,6 @@ fun MainMapScreen(
                 .padding(padding)
         ) {
             val context = LocalContext.current
-            var currentLocation by remember { mutableStateOf<Location?>(null) }
             var hasLocationPermission by remember { mutableStateOf(false) }
 
             LocationPermission {

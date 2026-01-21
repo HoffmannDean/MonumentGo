@@ -1,8 +1,6 @@
 package de.luh.hci.mid.monumentgo.settings.ui
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -18,7 +16,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import de.luh.hci.mid.monumentgo.settings.data.SettingsProvider
@@ -51,7 +48,7 @@ fun SettingsScreen(x0: NavHostController) {
                 steps = 48,
                 onValueChange = {
                     sliderPosition = it
-                    SettingsProvider.discoveryRadius = it
+                    SettingsProvider.discoveryRadiusKm = it
                 },
             )
         }
