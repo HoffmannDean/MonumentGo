@@ -28,8 +28,12 @@ fun AppNavigation() {
 
     NavHost(navController = navController, startDestination = Screen.Login.route) {
 
-        composable(Screen.Analytics.route) {
-            AnalyticsScreen(navController)
+        composable(Screen.AnalyticsPersonal.route) {
+            AnalyticsScreen(navController, 0)
+        }
+
+        composable (Screen.AnalyticsLeaderBoard.route){
+            AnalyticsScreen(navController, 1)
         }
 
         composable(Screen.MainMap.route) {

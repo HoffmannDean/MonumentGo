@@ -3,7 +3,6 @@ package de.luh.hci.mid.monumentgo.analytics.ui
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -26,10 +25,10 @@ import de.luh.hci.mid.monumentgo.userstats.ui.UserStatsScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AnalyticsScreen(x0: NavHostController) {
+fun AnalyticsScreen(x0: NavHostController, startState: Int) {
 
     val tabs = listOf("Personal", "Leaderboard")
-    var selectedTabIndex by remember { mutableStateOf(0) }
+    var selectedTabIndex by remember { mutableStateOf(startState) }
     Scaffold(
         topBar = {
             TopAppBar(title = { Text("Analytics") }, navigationIcon = {
