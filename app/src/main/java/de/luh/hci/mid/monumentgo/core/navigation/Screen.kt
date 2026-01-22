@@ -1,6 +1,5 @@
 package de.luh.hci.mid.monumentgo.core.navigation
 
-import java.util.Objects
 
 sealed class Screen(val route: String, val arg: String = "") {
 
