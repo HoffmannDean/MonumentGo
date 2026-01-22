@@ -10,6 +10,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
@@ -73,8 +74,10 @@ fun ImageInfoScreen(
                         bitmap = it,
                         contentDescription = null,
                         modifier = Modifier
+                            .rotate(90f)
                             .fillMaxWidth()
-                            .height(300.dp),
+                            .height(300.dp)
+                            .padding(24.dp),
                         contentScale = ContentScale.Crop
                     )
                 }
