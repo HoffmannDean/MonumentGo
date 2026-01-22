@@ -16,7 +16,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import de.luh.hci.mid.monumentgo.R
 import de.luh.hci.mid.monumentgo.core.data.repositories.MonumentRepository
@@ -46,7 +45,7 @@ fun MainMapScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { navController.navigate(Screen.Analytics.route) }) {
+                    IconButton(onClick = { navController.navigate(Screen.AnalyticsPersonal.route) }) {
                         Icon(
                             painter = painterResource(id = R.drawable.outline_analytics),
                             contentDescription = "Stats"
