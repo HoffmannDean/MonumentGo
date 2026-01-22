@@ -1,10 +1,12 @@
 package de.luh.hci.mid.monumentgo.infoscreen.ui
 
 import android.graphics.BitmapFactory
+import android.media.MediaPlayer
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -13,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -24,6 +27,30 @@ fun ImageInfoScreen(
     viewModel: InfoViewModel = viewModel()
 ) {
     var refresh by remember { mutableStateOf(0) }
+
+    val context = LocalContext.current
+    val audioFile = viewModel.ttsAudioFile
+
+    val isPlayerReady = remember { mutableStateOf(false)}
+
+    val mediaPlayer = remember(audioFile) {
+        audioFile?.let {
+            MediaPlayer().apply {
+                setDataSource(it.absolutePath)
+//                prepare()
+                playbackParams.setSpeed(10.0f)
+
+                prepareAsync()
+            }
+        }
+    }
+
+    DisposableEffect(mediaPlayer) {
+        onDispose {
+            mediaPlayer?.release()
+        }
+    }
+
 
     LaunchedEffect(Unit) {
         viewModel.loadDescription {
@@ -42,23 +69,44 @@ fun ImageInfoScreen(
     Scaffold(
         topBar = {
             InfoTopBar (
-                name = viewModel.monumentName.ifBlank { "Loading Name" },
+                name = "Informationen",
                 onBackClicked = {
                     navController.navigate(Screen.Camera.route)
                 },
                 onVolumeClicked = {
-                    println("Text will be played")
+                    if (mediaPlayer != null)
+                    {
+                        if (mediaPlayer.isPlaying) {
+                            mediaPlayer.pause()
+                        }
+                        else {
+                            mediaPlayer.start()
+                        }
+                    }
                 }
             )
         },
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = {
-                    viewModel.prepareQuizForNavigation()
-                    navController.navigate(Screen.Quiz.route)
+            if (viewModel.quizLoaded)
+            {
+                FloatingActionButton(
+                    onClick = {
+                        viewModel.prepareQuizForNavigation()
+                        navController.navigate(Screen.Quiz.route)
+                    }
+                ) {
+                    Text("Quiz!")
                 }
-            ) {
-                Text("Quiz!")
+            }
+            else {
+                FloatingActionButton(
+                    onClick = { }
+                ) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        strokeWidth = 2.dp
+                    )
+                }
             }
         },
         content = { innerPadding ->
@@ -90,7 +138,3 @@ fun ImageInfoScreen(
         }
     )
 }
-
-//        viewModel.loadDescription {
-//            refresh++
-//        }
