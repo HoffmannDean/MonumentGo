@@ -6,6 +6,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -30,11 +31,16 @@ fun ImageInfoScreen(
     val context = LocalContext.current
     val audioFile = viewModel.ttsAudioFile
 
+    val isPlayerReady = remember { mutableStateOf(false)}
+
     val mediaPlayer = remember(audioFile) {
         audioFile?.let {
             MediaPlayer().apply {
                 setDataSource(it.absolutePath)
-                prepare()
+//                prepare()
+                playbackParams.setSpeed(10.0f)
+
+                prepareAsync()
             }
         }
     }
@@ -63,7 +69,7 @@ fun ImageInfoScreen(
     Scaffold(
         topBar = {
             InfoTopBar (
-                name = viewModel.monumentName.ifBlank { "Loading Name" },
+                name = "Informationen",
                 onBackClicked = {
                     navController.navigate(Screen.Camera.route)
                 },
@@ -72,21 +78,35 @@ fun ImageInfoScreen(
                     {
                         if (mediaPlayer.isPlaying) {
                             mediaPlayer.pause()
-                            mediaPlayer.seekTo(0)
                         }
-                        mediaPlayer.start()
+                        else {
+                            mediaPlayer.start()
+                        }
                     }
                 }
             )
         },
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = {
-                    viewModel.prepareQuizForNavigation()
-                    navController.navigate(Screen.Quiz.route)
+            if (viewModel.quizLoaded)
+            {
+                FloatingActionButton(
+                    onClick = {
+                        viewModel.prepareQuizForNavigation()
+                        navController.navigate(Screen.Quiz.route)
+                    }
+                ) {
+                    Text("Quiz!")
                 }
-            ) {
-                Text("Quiz!")
+            }
+            else {
+                FloatingActionButton(
+                    onClick = { }
+                ) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        strokeWidth = 2.dp
+                    )
+                }
             }
         },
         content = { innerPadding ->
@@ -118,7 +138,3 @@ fun ImageInfoScreen(
         }
     )
 }
-
-//        viewModel.loadDescription {
-//            refresh++
-//        }

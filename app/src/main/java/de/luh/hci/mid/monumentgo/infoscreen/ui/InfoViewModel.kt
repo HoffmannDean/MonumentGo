@@ -26,7 +26,7 @@ class InfoViewModel(
     application: Application,
     val imageFile: File
 ) : AndroidViewModel(application) {
-    var description: String = "Loading..."
+    var description: String = "Generating Information"
         private set
 
     var monumentName: String by mutableStateOf("Loading...")
@@ -38,17 +38,20 @@ class InfoViewModel(
     var quiz by mutableStateOf<List<Triple<String, String, List<String>>>>(emptyList())
         private set
 
+    var quizLoaded: Boolean by mutableStateOf(false)
+        private set
+
     fun loadDescription(onUpdate: () -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             describeImage(imageFile, BuildConfig.OPENAI_API_KEY) {
                 description = it ?: "Failed to load description"
                 onUpdate()
 
-                extractMonumentName(imageFile, BuildConfig.OPENAI_API_KEY) { name ->
-                    viewModelScope.launch(Dispatchers.Main) {
-                        monumentName = name ?: "Unknown Monument"
-                    }
-                }
+//                extractMonumentName(imageFile, BuildConfig.OPENAI_API_KEY) { name ->
+//                    viewModelScope.launch(Dispatchers.Main) {
+//                        monumentName = name ?: "Unknown Monument"
+//                    }
+//                }
 
                 val audioFile = File(getApplication<Application>().cacheDir, "description.mp3")
                 generateTTS(description, BuildConfig.OPENAI_API_KEY, audioFile) { success ->
@@ -63,6 +66,7 @@ class InfoViewModel(
                     viewModelScope.launch(Dispatchers.Main) {
                         quiz = quizResult ?: emptyList()
                         println(quiz)
+                        quizLoaded = true
                     }
                 }
             }
