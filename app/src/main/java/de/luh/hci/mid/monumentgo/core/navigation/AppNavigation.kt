@@ -61,6 +61,7 @@ fun AppNavigation() {
             val viewModel: InfoViewModel = viewModel(factory = InfoViewModel.Factory)
             ImageInfoScreen(
                 navController,
+                app.monumentRepository,
                 viewModel
             )
         }

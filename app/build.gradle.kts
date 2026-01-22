@@ -89,6 +89,7 @@ dependencies {
     implementation(libs.androidx.compose.animation)
     implementation(libs.androidx.preference.ktx)
     implementation(libs.play.services.location)
+    implementation(libs.firebase.sessions)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

@@ -11,12 +11,14 @@ import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.AP
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import de.luh.hci.mid.monumentgo.BuildConfig
+import de.luh.hci.mid.monumentgo.core.data.repositories.MonumentRepository
 import de.luh.hci.mid.monumentgo.infoscreen.service.describeImage
 import de.luh.hci.mid.monumentgo.infoscreen.service.extractMonumentName
 import de.luh.hci.mid.monumentgo.infoscreen.service.generateQuiz
 import de.luh.hci.mid.monumentgo.quiz.data.Question
 import de.luh.hci.mid.monumentgo.quiz.data.QuizRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.io.File
 
@@ -34,9 +36,23 @@ class InfoViewModel(
     var quiz by mutableStateOf<List<Triple<String, String, List<String>>>>(emptyList())
         private set
 
-    fun loadDescription(onUpdate: () -> Unit) {
+    var monuments: String by mutableStateOf("No monuments found")
+        private set
+
+    fun getMonumentsAroundUser(monumentRepository: MonumentRepository) {
+        monuments = monumentRepository.monumentsAroundUser.value?.joinToString(
+            separator = ", ",
+            prefix = "[",
+            postfix = "]"
+        ) {
+            "[${it.name}, ${it.region}]"
+        }.toString()
+    }
+
+    fun loadDescription(monumentRepository: MonumentRepository, onUpdate: () -> Unit) {
+        getMonumentsAroundUser(monumentRepository)
         viewModelScope.launch(Dispatchers.IO) {
-            describeImage(imageFile, BuildConfig.OPENAI_API_KEY) {
+            describeImage(imageFile, BuildConfig.OPENAI_API_KEY, monuments) {
                 description = it ?: "Failed to load description"
                 onUpdate()
 
