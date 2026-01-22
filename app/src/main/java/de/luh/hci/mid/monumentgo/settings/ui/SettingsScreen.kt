@@ -1,11 +1,14 @@
 package de.luh.hci.mid.monumentgo.settings.ui
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -18,11 +21,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import de.luh.hci.mid.monumentgo.core.data.repositories.UserRepository
+import de.luh.hci.mid.monumentgo.core.navigation.Screen
 import de.luh.hci.mid.monumentgo.settings.data.SettingsProvider
+import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 
@@ -30,7 +38,8 @@ fun Float.format(digits: Int) = "%.${digits}f".format(this)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(x0: NavHostController) {
+fun SettingsScreen(x0: NavHostController, userRepository: UserRepository) {
+    var coroutineScope = rememberCoroutineScope()
     var sliderPositionRadius by remember { mutableFloatStateOf(SettingsProvider.discoveryRadiusKm) }
     var sliderPositionLimit by remember { mutableFloatStateOf(SettingsProvider.discoveryMonumentsLimit.toFloat()) }
     Scaffold(
@@ -71,6 +80,22 @@ fun SettingsScreen(x0: NavHostController) {
                     SettingsProvider.discoveryMonumentsLimit = it.roundToInt()
                 },
             )
+            Spacer(modifier = Modifier.height(16.dp))
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                ElevatedButton(
+                    onClick = {
+                        coroutineScope.launch {
+                            userRepository.signOut()
+                            x0.navigate(Screen.Login.route)
+                        }
+                    }
+                ) {
+                    Text("Logout")
+                }
+            }
         }
     }
 }
