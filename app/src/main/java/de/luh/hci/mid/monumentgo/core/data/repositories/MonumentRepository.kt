@@ -11,7 +11,6 @@ import io.github.jan.supabase.postgrest.postgrest
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.map
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 
@@ -59,39 +58,31 @@ class MonumentRepository {
         }
     }
 
-    fun getUndiscoveredMonumentsInRadius(
+    suspend fun getUndiscoveredMonumentsInRadius(
         userLocation: Location,
         radiusMeter: Float,
         limit: Int
-    ): List<Monument> {
-        return _monuments.value.filter { monument ->
-            val monumentLocation = Location("Monument").apply {
-                latitude = monument.lat
-                longitude = monument.lon
-            }
-            userLocation.distanceTo(monumentLocation) <= radiusMeter && !_discoveredMonuments.value.contains(
-                monument
-            )
-        }.sortedBy { monument ->
-            val monumentLocation = Location("Monument").apply {
-                latitude = monument.lat
-                longitude = monument.lon
-            }
-            userLocation.distanceTo(monumentLocation)
-        }.take(limit)
+    ): List<MonumentWithDetails> {
+        try {
+            return supabase.postgrest.rpc("get_monument_details_around", buildJsonObject {
+                put("lat", userLocation.latitude)
+                put("lon", userLocation.longitude)
+                put("radiusmeter", radiusMeter)
+                put("monumentlimit", limit)
+            }).decodeList<MonumentWithDetails>()
+        } catch (e: Exception) {
+            Log.e("db", "Error: ${e.message}")
+            return emptyList()
+        }
     }
 
     suspend fun getMonumentsAroundUser(userLocation: Location) {
-        _monumentsAroundUser.value = null
-        val radiusMeter = SettingsProvider.discoveryRadiusKm * 1000
-        val undiscoveredMonuments = getUndiscoveredMonumentsInRadius(
+        _monumentsAroundUser.value = null   // set null to indicate loading phase
+        _monumentsAroundUser.value = getUndiscoveredMonumentsInRadius(
             userLocation,
-            radiusMeter,
+            SettingsProvider.discoveryRadiusKm * 1000,
             SettingsProvider.discoveryMonumentsLimit
         )
-        _monumentsAroundUser.value = undiscoveredMonuments.mapNotNull { monument ->
-            getMonumentDetails(monument.id)
-        }
-        Log.d("db", "Monuments around user: ${_monumentsAroundUser.value?.map{it.name}}")
+        Log.d("db", "Fetched monuments around user: ${_monumentsAroundUser.value?.map{it.name}}")
     }
 }
