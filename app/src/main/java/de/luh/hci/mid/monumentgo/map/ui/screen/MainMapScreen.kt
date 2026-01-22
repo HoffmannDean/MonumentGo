@@ -46,7 +46,7 @@ fun MainMapScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { navController.navigate(Screen.Analytics.route) }) {
+                    IconButton(onClick = { navController.navigate(Screen.AnalyticsPersonal.route) }) {
                         Icon(
                             painter = painterResource(id = R.drawable.outline_analytics),
                             contentDescription = "Stats"

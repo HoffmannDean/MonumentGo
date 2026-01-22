@@ -53,7 +53,7 @@ fun QuizResultScreen(
             ElevatedButton(
                 onClick = {
                     resultViewModel.submitScore(currentScore)
-                    navController.navigate(Screen.Leaderboard.route)
+                    navController.navigate(Screen.AnalyticsLeaderBoard.route)
                 }
             ) {
                 Text("Leaderboard")
