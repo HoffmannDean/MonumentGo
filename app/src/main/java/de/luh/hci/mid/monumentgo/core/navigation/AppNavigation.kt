@@ -20,6 +20,10 @@ import de.luh.hci.mid.monumentgo.quiz.data.QuizResultScreen
 import de.luh.hci.mid.monumentgo.quiz.ui.QuizScreen
 import de.luh.hci.mid.monumentgo.settings.ui.SettingsScreen
 
+//Analytics route states
+const val PERSONAL_STATE = 0
+const val LEADERBOARD_STATE = 1
+
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
@@ -28,12 +32,13 @@ fun AppNavigation() {
 
     NavHost(navController = navController, startDestination = Screen.Login.route) {
 
+
         composable(Screen.AnalyticsPersonal.route) {
-            AnalyticsScreen(navController, 0)
+            AnalyticsScreen(navController, PERSONAL_STATE)
         }
 
         composable (Screen.AnalyticsLeaderBoard.route){
-            AnalyticsScreen(navController, 1)
+            AnalyticsScreen(navController, LEADERBOARD_STATE)
         }
 
         composable(Screen.MainMap.route) {
