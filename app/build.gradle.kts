@@ -78,6 +78,9 @@ dependencies {
     implementation(libs.androidx.camera.camera2)
     implementation(libs.androidx.camera.lifecycle)
 
+    // MARKDOWN
+    implementation(libs.markwon.core)
+
 
     // SUPABASE RELATED
     implementation(platform(libs.supabase.kt.bom))

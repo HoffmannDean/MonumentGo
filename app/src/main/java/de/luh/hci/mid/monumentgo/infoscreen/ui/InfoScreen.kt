@@ -2,25 +2,58 @@ package de.luh.hci.mid.monumentgo.infoscreen.ui
 
 import android.graphics.BitmapFactory
 import android.media.MediaPlayer
+import android.widget.TextView
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import de.luh.hci.mid.monumentgo.core.data.repositories.MonumentRepository
 import de.luh.hci.mid.monumentgo.core.navigation.Screen
+import io.noties.markwon.Markwon
+
+@Composable
+fun MarkdownText(
+    markdown: String,
+    modifier: Modifier = Modifier
+) {
+    val context = LocalContext.current
+    val textColor = MaterialTheme.colorScheme.onSurface
+
+    val markwon = remember {
+        Markwon.create(context)
+    }
+
+    AndroidView(
+        modifier = modifier,
+        factory = { ctx ->
+            TextView(ctx).apply {
+                setTextIsSelectable(true)
+                setTextColor(textColor.toArgb())
+            }
+        },
+        update = { textView ->
+            textView.setTextColor(textColor.toArgb())
+            markwon.setMarkdown(textView, markdown)
+        }
+    )
+}
+
 
 @Composable
 fun ImageInfoScreen(
@@ -28,7 +61,7 @@ fun ImageInfoScreen(
     monumentRepository: MonumentRepository,
     viewModel: InfoViewModel = viewModel()
 ) {
-    var refresh by remember { mutableStateOf(0) }
+    var refresh by remember { mutableIntStateOf(0) }
 
     val context = LocalContext.current
     val audioFile = viewModel.ttsAudioFile
@@ -71,7 +104,7 @@ fun ImageInfoScreen(
     Scaffold(
         topBar = {
             InfoTopBar (
-                name = "Informationen",
+                name = "Information",
                 onBackClicked = {
                     navController.navigate(Screen.Camera.route)
                 },
@@ -134,7 +167,7 @@ fun ImageInfoScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Text(text = viewModel.description)
+                MarkdownText(viewModel.description, Modifier.padding(bottom = 60.dp))
 
             }
         }

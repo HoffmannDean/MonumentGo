@@ -38,7 +38,7 @@ fun InfoTopBar(
             IconButton(onClick = onBackClicked) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Zurück"
+                    contentDescription = "Back"
                 )
             }
         },
