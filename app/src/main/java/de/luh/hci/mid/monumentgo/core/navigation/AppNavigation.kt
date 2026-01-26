@@ -16,7 +16,7 @@ import de.luh.hci.mid.monumentgo.infoscreen.ui.InfoViewModel
 import de.luh.hci.mid.monumentgo.leaderboard.ui.LeaderboardScreen
 import de.luh.hci.mid.monumentgo.map.ui.screen.MainMapScreen
 import de.luh.hci.mid.monumentgo.profile.ui.ProfileScreen
-import de.luh.hci.mid.monumentgo.quiz.data.QuizResultScreen
+import de.luh.hci.mid.monumentgo.quiz.ui.QuizResultScreen
 import de.luh.hci.mid.monumentgo.quiz.ui.QuizScreen
 import de.luh.hci.mid.monumentgo.settings.ui.SettingsScreen
 

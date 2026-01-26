@@ -1,4 +1,4 @@
-package de.luh.hci.mid.monumentgo.quiz.ui
+package de.luh.hci.mid.monumentgo.quiz.data
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -6,8 +6,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import de.luh.hci.mid.monumentgo.core.data.repositories.UserRepository
-import de.luh.hci.mid.monumentgo.quiz.data.Question
-import de.luh.hci.mid.monumentgo.quiz.data.QuizRepository
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -20,7 +18,7 @@ class QuizViewModel(
     private val questions: List<Question> = QuizRepository.currentQuestions.ifEmpty {
         // if there are no question
         listOf(
-            Question("Keine Daten geladen", listOf("Ok"), 0)
+            Question("Failed to load data", emptyList(), 0)
         )
     }
 

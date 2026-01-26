@@ -28,7 +28,7 @@ class InfoViewModel(
     application: Application,
     val imageFile: File
 ) : AndroidViewModel(application) {
-    var description: String = "Generating Information"
+    var description: String = "Generating Information..."
         private set
 
     var monumentName: String by mutableStateOf("Loading...")

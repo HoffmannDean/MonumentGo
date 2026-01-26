@@ -19,6 +19,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import de.luh.hci.mid.monumentgo.core.navigation.Screen
 import de.luh.hci.mid.monumentgo.quiz.data.QuizRepository
+import de.luh.hci.mid.monumentgo.quiz.data.QuizViewModel
 import kotlin.math.min
 
 
@@ -77,7 +78,6 @@ fun QuizScreen(
                             }
                         }
                     }
-
                     QuizButton(
                         buttonText = answerText,
                         containerColor = buttonColor,
@@ -89,12 +89,12 @@ fun QuizScreen(
                 }
             } else {
                 Text(
-                    text = "Quiz Beendet!",
+                    text = "Finished Quiz!",
                     style = MaterialTheme.typography.headlineLarge,
                     color = MaterialTheme.colorScheme.primary
                 )
                 Text(
-                    text = "Alle 3 Fragen wurden bearbeitet.",
+                    text = "All 3 question were answered.",
                     style = MaterialTheme.typography.bodyLarge
                 )
                 navController.navigate(Screen.QuizResult.route)
