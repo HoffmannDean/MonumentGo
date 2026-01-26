@@ -89,6 +89,7 @@ dependencies {
     implementation(libs.androidx.compose.animation)
     implementation(libs.androidx.preference.ktx)
     implementation(libs.play.services.location)
+    implementation(libs.androidx.material3)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
