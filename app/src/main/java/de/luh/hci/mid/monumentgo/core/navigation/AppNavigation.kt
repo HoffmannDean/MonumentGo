@@ -33,12 +33,8 @@ fun AppNavigation() {
     NavHost(navController = navController, startDestination = Screen.Login.route) {
 
 
-        composable(Screen.AnalyticsPersonal.route) {
-            AnalyticsScreen(navController, PERSONAL_STATE)
-        }
-
-        composable (Screen.AnalyticsLeaderBoard.route){
-            AnalyticsScreen(navController, LEADERBOARD_STATE)
+        composable(Screen.Leaderboard.route) {
+            LeaderboardScreen(navController)
         }
 
         composable(Screen.MainMap.route) {
@@ -80,10 +76,6 @@ fun AppNavigation() {
 
         composable(Screen.Register.route) {
             RegisterScreen(navController)
-        }
-
-        composable(Screen.Leaderboard.route) {
-            LeaderboardScreen(navController)
         }
 
     }

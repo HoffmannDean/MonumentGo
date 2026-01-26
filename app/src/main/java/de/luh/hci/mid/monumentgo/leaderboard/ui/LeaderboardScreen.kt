@@ -1,5 +1,6 @@
 package de.luh.hci.mid.monumentgo.leaderboard.ui
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -11,12 +12,18 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -32,10 +39,12 @@ import de.luh.hci.mid.monumentgo.leaderboard.data.LeaderboardEntry
 import de.luh.hci.mid.monumentgo.leaderboard.data.LeaderboardViewModel
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LeaderboardScreen(
     navController: NavController,
-    viewModel: LeaderboardViewModel = viewModel(factory = LeaderboardViewModel.Factory)) {
+    viewModel: LeaderboardViewModel = viewModel(factory = LeaderboardViewModel.Factory)
+) {
     val allPlayers by viewModel.leaderboardEntries.collectAsState(initial = emptyList())
 
     // Auto-scroll to current user logic
@@ -47,7 +56,20 @@ fun LeaderboardScreen(
     }
 
     Scaffold(
-        topBar = { LeaderboardTopBar(onHomeClick = {}, onProfileClick = {}) }
+        topBar = {
+            TopAppBar(title = {
+
+            }, navigationIcon = {
+                IconButton(onClick = {
+                    navController.popBackStack()
+                }) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Go Back"
+                    )
+                }
+            })
+        }
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -56,14 +78,14 @@ fun LeaderboardScreen(
                 .padding(horizontal = 16.dp), // Global side padding
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(24.dp))
-
             Text(
                 text = "Leaderboard",
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.ExtraBold,
-                color = MaterialTheme.colorScheme.primary
+                color = MaterialTheme.colorScheme.primary,
+                textAlign = TextAlign.Center
             )
+
             Text(
                 text = "Level ${viewModel.getUserLevel()}",
                 style = MaterialTheme.typography.headlineSmall,
@@ -88,9 +110,22 @@ fun LeaderboardScreen(
                 ) {
                     item {
                         Row(modifier = Modifier.padding(16.dp)) {
-                            Text("Rank", modifier = Modifier.weight(0.20f), style = MaterialTheme.typography.titleLarge)
-                            Text("Player", modifier = Modifier.weight(0.50f), style = MaterialTheme.typography.titleLarge)
-                            Text("Score", modifier = Modifier.weight(0.30f), style = MaterialTheme.typography.titleLarge, textAlign = TextAlign.End)
+                            Text(
+                                "Rank",
+                                modifier = Modifier.weight(0.20f),
+                                style = MaterialTheme.typography.titleLarge
+                            )
+                            Text(
+                                "Player",
+                                modifier = Modifier.weight(0.50f),
+                                style = MaterialTheme.typography.titleLarge
+                            )
+                            Text(
+                                "Score",
+                                modifier = Modifier.weight(0.30f),
+                                style = MaterialTheme.typography.titleLarge,
+                                textAlign = TextAlign.End
+                            )
                         }
                         HorizontalDivider()
                     }

@@ -49,14 +49,11 @@ fun MainMapScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { navController.navigate(Screen.AnalyticsPersonal.route) }) {
+                    IconButton(onClick = { navController.navigate(Screen.Leaderboard.route) }) {
                         Icon(
                             painter = painterResource(id = R.drawable.outline_analytics),
                             contentDescription = "Stats"
                         )
-                    }
-                    IconButton(onClick = { navController.navigate(Screen.Profile.route) }) {
-                        Icon(Icons.Filled.AccountCircle, contentDescription = "Profile")
                     }
                 }
             )

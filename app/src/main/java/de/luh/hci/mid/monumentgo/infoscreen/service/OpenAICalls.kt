@@ -17,7 +17,12 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import java.util.Base64
 
-fun describeImage(imageFile: File, apiKey: String, monumentList: String, callback: (String?) -> Unit) {
+fun generateSummary(
+    imageFile: File,
+    apiKey: String,
+    monumentList: String,
+    callback: (String?) -> Unit
+) {
     val client = OkHttpClient()
 
     val bitmap = BitmapFactory.decodeFile(imageFile.absolutePath)
@@ -27,8 +32,17 @@ fun describeImage(imageFile: File, apiKey: String, monumentList: String, callbac
     val base64Image = Base64.getEncoder().encodeToString(stream.toByteArray())
 
     val contentArray = JSONArray()
-        .put(JSONObject().put("type", "text").put("text", "What is depicted in the given image? Create a short summary of information about this with some interesting facts in plain text. The image depicts one of the following places in the given region: $monumentList"))
-        .put(JSONObject().put("type", "image_url").put("image_url", JSONObject().put("url", "data:image/jpeg;base64,$base64Image")))
+        .put(
+            JSONObject()
+                .put("type", "text").put(
+                    "text",
+                    "What is depicted in the given image? Create a short summary of information about this with some interesting facts in plain text. The image depicts one of the following places in the given region: $monumentList"
+                )
+        )
+        .put(
+            JSONObject().put("type", "image_url")
+                .put("image_url", JSONObject().put("url", "data:image/jpeg;base64,$base64Image"))
+        )
 
     val message = JSONObject()
         .put("role", "user")
@@ -241,8 +255,16 @@ fun extractMonumentName(
     val base64Image = Base64.getEncoder().encodeToString(stream.toByteArray())
 
     val contentArray = JSONArray()
-        .put(JSONObject().put("type", "text").put("text", "What is depicted in the given image? Answer in a as little words as possible"))
-        .put(JSONObject().put("type", "image_url").put("image_url", JSONObject().put("url", "data:image/jpeg;base64,$base64Image")))
+        .put(
+            JSONObject().put("type", "text").put(
+                "text",
+                "What is depicted in the given image? Answer in a as little words as possible"
+            )
+        )
+        .put(
+            JSONObject().put("type", "image_url")
+                .put("image_url", JSONObject().put("url", "data:image/jpeg;base64,$base64Image"))
+        )
 
     val message = JSONObject()
         .put("role", "user")
