@@ -19,11 +19,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import de.luh.hci.mid.monumentgo.core.data.repositories.MonumentRepository
 import de.luh.hci.mid.monumentgo.core.navigation.Screen
 
 @Composable
 fun ImageInfoScreen(
     navController: NavController,
+    monumentRepository: MonumentRepository,
     viewModel: InfoViewModel = viewModel()
 ) {
     var refresh by remember { mutableStateOf(0) }
@@ -53,7 +55,7 @@ fun ImageInfoScreen(
 
 
     LaunchedEffect(Unit) {
-        viewModel.loadDescription {
+        viewModel.loadDescription(monumentRepository) {
             refresh++
         }
     }

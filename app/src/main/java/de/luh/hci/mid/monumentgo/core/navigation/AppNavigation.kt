@@ -50,7 +50,7 @@ fun AppNavigation() {
         }
 
         composable(Screen.Settings.route) {
-            SettingsScreen(navController)
+            SettingsScreen(navController, app.userRepository)
         }
 
         composable(Screen.Camera.route) {
@@ -61,6 +61,7 @@ fun AppNavigation() {
             val viewModel: InfoViewModel = viewModel(factory = InfoViewModel.Factory)
             ImageInfoScreen(
                 navController,
+                app.monumentRepository,
                 viewModel
             )
         }

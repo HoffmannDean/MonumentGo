@@ -1,17 +1,16 @@
 package de.luh.hci.mid.monumentgo.core.data.repositories
 
+import android.location.Location
 import android.util.Log
 import de.luh.hci.mid.monumentgo.core.data.db.DatabaseProvider.supabase
 import de.luh.hci.mid.monumentgo.core.data.model.Monument
 import de.luh.hci.mid.monumentgo.core.data.model.MonumentWithDetails
+import de.luh.hci.mid.monumentgo.settings.data.SettingsProvider
 import io.github.jan.supabase.auth.auth
-import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.postgrest
-import io.github.jan.supabase.postgrest.query.Columns
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.toSet
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 
@@ -22,6 +21,11 @@ class MonumentRepository {
 
     private val _discoveredMonuments = MutableStateFlow<Set<Monument>>(setOf())
     val discoveredMonuments: StateFlow<Set<Monument>?> = _discoveredMonuments.asStateFlow()
+
+    private val _monumentsAroundUser = MutableStateFlow<List<MonumentWithDetails>?>(null)
+    val monumentsAroundUser: StateFlow<List<MonumentWithDetails>?> =
+        _monumentsAroundUser.asStateFlow()
+
 
     suspend fun updateMonuments() {
         try {
@@ -36,7 +40,8 @@ class MonumentRepository {
         val userId = supabase.auth.currentUserOrNull()?.id
         if (userId == null) throw Exception("User is not logged in")
         try {
-            val discoveredMonuments = supabase.postgrest.rpc("get_discovered_monuments").decodeList<Monument>()
+            val discoveredMonuments =
+                supabase.postgrest.rpc("get_discovered_monuments").decodeList<Monument>()
             _discoveredMonuments.value = discoveredMonuments.toSet()
         } catch (e: Exception) {
             Log.e("db", "Error: ${e.message}")
@@ -51,5 +56,33 @@ class MonumentRepository {
         } catch (e: Exception) {
             return null
         }
+    }
+
+    suspend fun getUndiscoveredMonumentsInRadius(
+        userLocation: Location,
+        radiusMeter: Float,
+        limit: Int
+    ): List<MonumentWithDetails> {
+        try {
+            return supabase.postgrest.rpc("get_monument_details_around", buildJsonObject {
+                put("lat", userLocation.latitude)
+                put("lon", userLocation.longitude)
+                put("radiusmeter", radiusMeter)
+                put("monumentlimit", limit)
+            }).decodeList<MonumentWithDetails>()
+        } catch (e: Exception) {
+            Log.e("db", "Error: ${e.message}")
+            return emptyList()
+        }
+    }
+
+    suspend fun getMonumentsAroundUser(userLocation: Location) {
+        _monumentsAroundUser.value = null   // set null to indicate loading phase
+        _monumentsAroundUser.value = getUndiscoveredMonumentsInRadius(
+            userLocation,
+            SettingsProvider.discoveryRadiusKm * 1000,
+            SettingsProvider.discoveryMonumentsLimit
+        )
+        Log.d("db", "Fetched monuments around user: ${_monumentsAroundUser.value?.map{it.name}}")
     }
 }
