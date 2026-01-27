@@ -21,11 +21,17 @@ import java.util.Base64
 import androidx.core.graphics.scale
 import de.luh.hci.mid.monumentgo.infoscreen.service.OKHttp.client
 import java.net.URLDecoder
+import java.util.concurrent.TimeUnit
 
 const val userAgent = "MonumentGo/1.0 (https://github.com/HoffmannDean/MonumentGo; john.klein@stud.uni-hannover.de)"
+const val maxArticleLength = 6_000
 
 object OKHttp {
-    val client = OkHttpClient()
+    val client = OkHttpClient.Builder()
+        .connectTimeout(30, TimeUnit.SECONDS)
+        .readTimeout(60, TimeUnit.SECONDS)
+        .writeTimeout(30, TimeUnit.SECONDS)
+        .build()
 }
 
 private fun buildMonumentList(monuments: List<MonumentWithDetails>): String {
@@ -129,12 +135,10 @@ fun getWikipediaArticle(
     monument: MonumentWithDetails, apiKey: String, callback: (String?) -> Unit
 ) {
     // Extract the article title from the URL
-    val title = monument.wikiUrl.substringAfter("/wiki/").let {
-        URLDecoder.decode(it, "UTF-8")
-    }
+    val title = monument.wikiUrl.substringAfter("/wiki/")
 
     // Wikipedia API endpoint
-    val apiUrl = "https://en.wikipedia.org/w/api.php" +
+    val apiUrl = "https://de.wikipedia.org/w/api.php" +
             "?action=query" +
             "&prop=extracts" +
             "&explaintext=true" +  // get plain text
@@ -152,7 +156,8 @@ fun getWikipediaArticle(
             val json = JSONObject(body)
             val pages = json.getJSONObject("query").getJSONObject("pages")
             val page = pages.keys().asSequence().firstOrNull()?.let { pages.getJSONObject(it) }
-            callback(page?.optString("extract"))
+            val result = page?.optString("extract")?.take(maxArticleLength)
+            callback(result)
         } else {
             callback(null)
         }
@@ -193,14 +198,77 @@ fun generateTTS(
     })
 }
 
-fun generateSummaryAndQuiz(
+
+fun generateSummary(
     monument: MonumentWithDetails,
     article: String,
     apiKey: String,
-    callback: (String?, List<Triple<String, String, List<String>>>?) -> Unit
+    callback: (String?) -> Unit
+) {
+    Log.e("openai", "Article length = ${article.length}")
+    val prompt = """
+        You are given a German wikipedia article about ${monument.name} in ${monument.region}.
+        Create a concise summary of information in this article with some interesting facts (in english).
+        You can use markdown to stylize the summary.
+        The title of the summary should just be "${monument.name}".
+        
+        Wikipedia article about ${monument.name}:
+
+        $article
+    """.trimIndent()
+
+    val message = JSONObject().put("role", "user")
+        .put("content", JSONArray().put(JSONObject().put("type", "text").put("text", prompt)))
+
+    val jsonBody =
+        JSONObject().put("model", "gpt-4o-mini").put("messages", JSONArray().put(message))
+
+    val requestBody = RequestBody.create(
+        "application/json".toMediaType(), jsonBody.toString()
+    )
+
+    val request = Request.Builder()
+        .url("https://api.openai.com/v1/chat/completions")
+        .addHeader("Authorization", "Bearer $apiKey")
+        .addHeader("User-Agent", userAgent)
+        .post(requestBody)
+        .build()
+
+    client.newCall(request).enqueue(object : Callback {
+        override fun onFailure(call: Call, e: IOException) {
+            Log.e("openai", "Error: ${e.message}")
+            callback(null)
+        }
+
+        override fun onResponse(call: Call, response: Response) {
+            response.use {
+                if (!response.isSuccessful) {
+                    val errorBody = response.body.string()
+                    Log.e("openai", "OPENAI ERROR: $errorBody")
+                    callback(null)
+                } else {
+                    val json = JSONObject(response.body.string())
+                    val content = json
+                        .getJSONArray("choices")
+                        .getJSONObject(0)
+                        .getJSONObject("message")
+                        .getString("content")
+                    callback(content)
+                }
+            }
+        }
+    })
+}
+
+fun generateQuiz(
+    monument: MonumentWithDetails,
+    summary: String,
+    apiKey: String,
+    callback: (List<Triple<String, String, List<String>>>?) -> Unit
 ) {
     val prompt = """
-        You are creating a short quiz based ONLY on the following image description.
+        You are given a summary of the wikipedia article about ${monument.name} in ${monument.region}.
+        Create a quiz with 3 questions that can be answered by reading the summary.
 
         Rules:
         - Create exactly 3 questions
@@ -209,9 +277,11 @@ fun generateSummaryAndQuiz(
           - "correct" for the correct answer (1–4 words)
           - "incorrect" for each of the two incorrect answers (1–4 words each)
         - Answers must be unambiguous
+        - Someone should be able to answer the quiz by reading the summary
         - Do NOT include explanations
-        - Output MUST be strictly valid JSON and nothing else
-        - JSON format:
+        - Output of the quiz MUST be strictly valid JSON and nothing else
+        
+        Output Format:
         {
             "questions": [
                 {
@@ -232,9 +302,9 @@ fun generateSummaryAndQuiz(
             ]
         }
         
-        Wikipedia article:
+        Summary about ${monument.name}:
 
-        $article
+        $summary
     """.trimIndent()
 
     val message = JSONObject().put("role", "user")
@@ -252,13 +322,13 @@ fun generateSummaryAndQuiz(
 
     client.newCall(request).enqueue(object : Callback {
         override fun onFailure(call: Call, e: IOException) {
-            callback("", null)
+            callback(null)
         }
 
         override fun onResponse(call: Call, response: Response) {
             response.use {
                 if (!response.isSuccessful) {
-                    callback("", null)
+                    callback(null)
                     return
                 }
 
@@ -281,10 +351,10 @@ fun generateSummaryAndQuiz(
                         result.add(Triple(question, correct, incorrect))
                     }
 
-                    callback("", result)
+                    callback(result)
                 } catch (e: Exception) {
                     // In case GPT returns invalid JSON
-                    callback("", null)
+                    callback(null)
                 }
             }
         }

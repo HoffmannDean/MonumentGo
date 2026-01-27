@@ -24,8 +24,8 @@ class MainMapViewModel(
     val uiState: StateFlow<MapState> = _uiState.asStateFlow()
 
     suspend fun updateMonuments() {
-        monumentRepository.updateDiscoveredMonuments()
         monumentRepository.updateMonuments()
+        monumentRepository.updateDiscoveredMonuments()
         monumentRepository.selectedMonument.value = null
         Log.d("map", monumentRepository.discoveredMonuments.value?.count().toString())
         _uiState.value = MapState.Ready(

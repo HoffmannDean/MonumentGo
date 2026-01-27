@@ -22,11 +22,13 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import de.luh.hci.mid.monumentgo.core.data.repositories.MonumentRepository
 import de.luh.hci.mid.monumentgo.core.navigation.Screen
 import io.noties.markwon.Markwon
+import kotlinx.coroutines.launch
 
 @Composable
 fun MarkdownText(
@@ -63,7 +65,9 @@ fun ImageInfoScreen(
     viewModel: InfoViewModel = viewModel()
 ) {
     var refresh by remember { mutableIntStateOf(0) }
+    val context = LocalContext.current
     val audioFile = viewModel.ttsAudioFile
+    val isPlayerReady = remember { mutableStateOf(false)}
 
     val mediaPlayer = remember(audioFile) {
         audioFile?.let {
@@ -85,14 +89,14 @@ fun ImageInfoScreen(
 
 
     LaunchedEffect(Unit) {
-        val error = viewModel.loadDescription(monumentRepository) {
+        viewModel.loadDescription(monumentRepository) { error ->
             refresh++
-        }
-        if (error != null) {
-            Log.e("openai", error)
-            if (monumentRepository.selectedMonument.value == null) {
-                navController.currentBackStackEntry?.savedStateHandle?.set("error", error)
-                navController.navigate(Screen.MainMap.route)
+            if (error != null) {
+                Log.e("openai", error)
+                viewModel.viewModelScope.launch {
+                    navController.currentBackStackEntry?.savedStateHandle?.set("error", error)
+                    navController.navigate(Screen.MainMap.route)
+                }
             }
         }
     }
@@ -170,7 +174,6 @@ fun ImageInfoScreen(
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
-
                 MarkdownText(viewModel.description, Modifier.padding(bottom = 60.dp))
 
             }
