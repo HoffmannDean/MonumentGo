@@ -19,7 +19,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import de.luh.hci.mid.monumentgo.core.navigation.Screen
 import de.luh.hci.mid.monumentgo.quiz.data.QuizRepository
+import de.luh.hci.mid.monumentgo.quiz.data.QuizRepository.currentScore
 import de.luh.hci.mid.monumentgo.quiz.data.QuizResultViewModel
+import de.luh.hci.mid.monumentgo.settings.data.SettingsProvider
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -27,18 +29,9 @@ fun QuizResultScreen(
     navController: NavController,
     resultViewModel: QuizResultViewModel = viewModel(factory = QuizResultViewModel.Companion.Factory)
 ) {
-    val currentScore: Int = QuizRepository.currentScore
-    val storedScore: Int = resultViewModel.getUserPoints()
-    Scaffold(
-        topBar = {
-            CenterAlignedTopAppBar(title = {
-                Text(
-                    "Quiz Results",
-                    style = MaterialTheme.typography.headlineLarge
-                )
-            })
-        },
-    ) { paddingValues ->
+    val correctAnswers: Int = QuizRepository.currentScore
+    val userPoints: Int = resultViewModel.getUserPoints()
+    Scaffold { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -46,17 +39,21 @@ fun QuizResultScreen(
             verticalArrangement = Arrangement.SpaceEvenly,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Text(
+                "Quiz Results",
+                style = MaterialTheme.typography.headlineLarge
+            )
             Column(
                 verticalArrangement = Arrangement.spacedBy(40.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    "${currentScore} / ${resultViewModel.getQuestionsSize()} Correct",
+                    "$correctAnswers / ${resultViewModel.getQuestionsSize()} Correct",
                     style = MaterialTheme.typography.headlineMedium
                 )
 
                 Text(
-                    "${storedScore} Points + ${currentScore}",
+                    "$userPoints Points + ${resultViewModel.calculateScore(correctAnswers)}",
                     style = MaterialTheme.typography.headlineMedium
                 )
 

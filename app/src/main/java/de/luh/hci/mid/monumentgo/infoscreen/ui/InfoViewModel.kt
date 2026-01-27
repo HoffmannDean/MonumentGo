@@ -1,6 +1,7 @@
 package de.luh.hci.mid.monumentgo.infoscreen.ui
 
 import android.app.Application
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -13,8 +14,8 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import de.luh.hci.mid.monumentgo.BuildConfig
 import de.luh.hci.mid.monumentgo.core.data.repositories.MonumentRepository
 import de.luh.hci.mid.monumentgo.infoscreen.service.matchMonument
-import de.luh.hci.mid.monumentgo.infoscreen.service.extractMonumentName
 import de.luh.hci.mid.monumentgo.infoscreen.service.generateQuiz
+import de.luh.hci.mid.monumentgo.infoscreen.service.generateSummary
 import de.luh.hci.mid.monumentgo.infoscreen.service.generateTTS
 import de.luh.hci.mid.monumentgo.quiz.data.Question
 import de.luh.hci.mid.monumentgo.quiz.data.QuizRepository
@@ -30,9 +31,6 @@ class InfoViewModel(
     var description: String = "Generating Information..."
         private set
 
-    var monumentName: String by mutableStateOf("Loading...")
-        private set
-
     var ttsAudioFile: File? by mutableStateOf(null)
         private set
 
@@ -44,30 +42,28 @@ class InfoViewModel(
 
     fun loadDescription(monumentRepository: MonumentRepository, onUpdate: () -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
-            matchMonument(imageFile, BuildConfig.OPENAI_API_KEY, monumentRepository.monumentsAroundUser.value!!) {
-                description = it ?: "Failed to load description"
-                onUpdate()
+            matchMonument(imageFile, BuildConfig.OPENAI_API_KEY, monumentRepository.monumentsAroundUser.value!!) { monument ->
+                if (monument == null) return@matchMonument
+                monumentRepository.selectedMonument.value = monument
+                generateSummary(monument, BuildConfig.OPENAI_API_KEY) { summary ->
+                    description = summary ?: "Failed to load description"
+                    onUpdate()
 
-                extractMonumentName(imageFile, BuildConfig.OPENAI_API_KEY) { name ->
-                    viewModelScope.launch(Dispatchers.Main) {
-                        monumentName = name ?: "Unknown Monument"
-                    }
-                }
-
-                val audioFile = File(getApplication<Application>().cacheDir, "description.mp3")
-                generateTTS(description, BuildConfig.OPENAI_API_KEY, audioFile) { success ->
-                    if (success) {
-                        viewModelScope.launch(Dispatchers.Main) {
-                            ttsAudioFile = audioFile
+                    val audioFile = File(getApplication<Application>().cacheDir, "description.mp3")
+                    generateTTS(description, BuildConfig.OPENAI_API_KEY, audioFile) { success ->
+                        if (success) {
+                            viewModelScope.launch(Dispatchers.Main) {
+                                ttsAudioFile = audioFile
+                            }
                         }
                     }
-                }
 
-                generateQuiz(description, BuildConfig.OPENAI_API_KEY) { quizResult ->
-                    viewModelScope.launch(Dispatchers.Main) {
-                        quiz = quizResult ?: emptyList()
-                        println(quiz)
-                        quizLoaded = true
+                    generateQuiz(description, BuildConfig.OPENAI_API_KEY) { quizResult ->
+                        viewModelScope.launch(Dispatchers.Main) {
+                            quiz = quizResult ?: emptyList()
+                            println(quiz)
+                            quizLoaded = true
+                        }
                     }
                 }
             }

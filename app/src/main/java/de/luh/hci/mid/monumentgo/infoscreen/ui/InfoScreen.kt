@@ -104,7 +104,7 @@ fun ImageInfoScreen(
     Scaffold(
         topBar = {
             InfoTopBar (
-                name = "Information",
+                name = monumentRepository.selectedMonument.value?.name ?: "Matching monument...",
                 onBackClicked = {
                     navController.navigate(Screen.Camera.route)
                 },

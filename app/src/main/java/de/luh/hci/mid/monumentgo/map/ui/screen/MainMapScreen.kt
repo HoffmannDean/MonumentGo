@@ -1,7 +1,10 @@
 package de.luh.hci.mid.monumentgo.map.ui.screen
 
+import android.R.attr.padding
+import android.annotation.SuppressLint
 import android.location.Location
 import android.util.Log
+import androidx.compose.foundation.background
 import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
@@ -14,6 +17,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -27,6 +31,8 @@ import de.luh.hci.mid.monumentgo.map.ui.components.OSMMap
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
+// we have to suppress the warning in order for OSMMapView to work properly
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainMapScreen(
@@ -99,7 +105,6 @@ fun MainMapScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding)
         ) {
             val context = LocalContext.current
             var hasLocationPermission by remember { mutableStateOf(false) }

@@ -11,6 +11,7 @@ import kotlin.uuid.ExperimentalUuidApi
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import de.luh.hci.mid.monumentgo.MonumentGo
 import de.luh.hci.mid.monumentgo.core.data.repositories.MonumentRepository
+import de.luh.hci.mid.monumentgo.settings.data.SettingsProvider
 
 class QuizResultViewModel(
     private val userRepo: UserRepository,
@@ -22,11 +23,15 @@ class QuizResultViewModel(
         return userRepo.userProfile.value?.points ?: -1
     }
 
+    fun calculateScore(answeredQuestions: Int) : Int {
+        val monumentPoints = monumentRepo.selectedMonument.value?.points ?: 0
+        return monumentPoints + SettingsProvider.pointsPerCorrectAnswer * answeredQuestions
+    }
+
     @OptIn(ExperimentalUuidApi::class)
     fun submitScore(answeredQuestions: Int) {
-        val monumentPoints = monumentRepo.selectedMonument?.points ?: 0
         viewModelScope.launch {
-            userRepo.addToUserScore(monumentPoints + 25 * answeredQuestions)
+            userRepo.addToUserScore(calculateScore(answeredQuestions))
             monumentRepo.submitMonumentDiscovery()
         }
     }

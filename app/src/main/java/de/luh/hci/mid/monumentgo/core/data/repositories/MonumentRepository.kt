@@ -2,6 +2,7 @@ package de.luh.hci.mid.monumentgo.core.data.repositories
 
 import android.location.Location
 import android.util.Log
+import androidx.compose.runtime.mutableStateOf
 import de.luh.hci.mid.monumentgo.core.data.db.DatabaseProvider.supabase
 import de.luh.hci.mid.monumentgo.core.data.model.Monument
 import de.luh.hci.mid.monumentgo.core.data.model.MonumentWithDetails
@@ -26,8 +27,7 @@ class MonumentRepository {
     val monumentsAroundUser: StateFlow<List<MonumentWithDetails>?> =
         _monumentsAroundUser.asStateFlow()
 
-    var selectedMonument: MonumentWithDetails? = null
-
+    val selectedMonument = mutableStateOf<MonumentWithDetails?>(null)
 
     suspend fun updateMonuments() {
         try {
@@ -95,15 +95,16 @@ class MonumentRepository {
 
     suspend fun submitMonumentDiscovery() {
         val userId = supabase.auth.currentUserOrNull()?.id
-        if (userId == null || selectedMonument == null) throw Exception("User is not logged in")
+        if (userId == null || selectedMonument.value == null) throw Exception("User is not logged in")
         try {
             supabase.postgrest.from("user_discovered_monuments").insert(
                 buildJsonObject {
                     put("user_id", userId)
-                    put("monument_id", selectedMonument!!.id)
+                    put("monument_id", selectedMonument.value!!.id)
                 }
             )
-            selectedMonument = null
+            selectedMonument.value = null
+            updateDiscoveredMonuments()
         } catch (e: Exception) {
             Log.e("db", "Error: ${e.message}")
         }
