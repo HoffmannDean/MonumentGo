@@ -60,7 +60,7 @@ class LeaderboardViewModel(
     }
 
     fun getUserLevel() : Int {
-        return userRepository.getUserLevel()
+        return userRepository.userLevel
     }
 
     companion object {

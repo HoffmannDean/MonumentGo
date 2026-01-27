@@ -12,7 +12,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import de.luh.hci.mid.monumentgo.BuildConfig
 import de.luh.hci.mid.monumentgo.core.data.repositories.MonumentRepository
-import de.luh.hci.mid.monumentgo.infoscreen.service.generateSummary
+import de.luh.hci.mid.monumentgo.infoscreen.service.matchMonument
 import de.luh.hci.mid.monumentgo.infoscreen.service.extractMonumentName
 import de.luh.hci.mid.monumentgo.infoscreen.service.generateQuiz
 import de.luh.hci.mid.monumentgo.infoscreen.service.generateTTS
@@ -42,23 +42,9 @@ class InfoViewModel(
     var quizLoaded: Boolean by mutableStateOf(false)
         private set
 
-    var monuments: String by mutableStateOf("No monuments found")
-        private set
-
-    fun getMonumentsAroundUser(monumentRepository: MonumentRepository) {
-        monuments = monumentRepository.monumentsAroundUser.value?.joinToString(
-            separator = ", ",
-            prefix = "[",
-            postfix = "]"
-        ) {
-            "[${it.name}, ${it.region}]"
-        }.toString()
-    }
-
     fun loadDescription(monumentRepository: MonumentRepository, onUpdate: () -> Unit) {
-        getMonumentsAroundUser(monumentRepository)
         viewModelScope.launch(Dispatchers.IO) {
-            generateSummary(imageFile, BuildConfig.OPENAI_API_KEY, monuments) {
+            matchMonument(imageFile, BuildConfig.OPENAI_API_KEY, monumentRepository.monumentsAroundUser.value!!) {
                 description = it ?: "Failed to load description"
                 onUpdate()
 

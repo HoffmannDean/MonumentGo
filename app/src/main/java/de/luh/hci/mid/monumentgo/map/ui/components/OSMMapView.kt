@@ -79,6 +79,7 @@ fun OSMMap(
             if (currentState is MapState.Ready) {
                 map.overlays.addAll(currentState.monuments.map { monument ->
                     val discovered = currentState.discoveredMonuments.contains(monument)
+                    val snippet_discovered = if (discovered) " (discovered)" else ""
                     Marker(map).apply {
                         position = GeoPoint(monument.lat, monument.lon)
                         icon = if (discovered) discoveredMonumentIcon else monumentIcon
@@ -87,7 +88,7 @@ fun OSMMap(
                                 val details = viewModel.getDetails(monument)
                                 if (details != null) {
                                     marker.title = details.name
-                                    marker.snippet = "Points: ${details.points}"
+                                    marker.snippet = "Points: ${details.points}" + snippet_discovered
                                 } else {
                                     marker.title = "Failed to load data."
                                 }
@@ -99,6 +100,7 @@ fun OSMMap(
                 })
             }
             val marker = Marker(map)
+            marker.title = "Your Location"
             marker.position = GeoPoint(it.latitude, it.longitude)
             marker.setAnchor(
                 Marker.ANCHOR_CENTER,

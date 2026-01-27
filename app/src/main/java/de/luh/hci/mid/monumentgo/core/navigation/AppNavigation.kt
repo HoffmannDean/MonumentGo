@@ -3,9 +3,11 @@ package de.luh.hci.mid.monumentgo.core.navigation
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import de.luh.hci.mid.monumentgo.MonumentGo
 import de.luh.hci.mid.monumentgo.analytics.ui.AnalyticsScreen
 import de.luh.hci.mid.monumentgo.auth.ui.login.LoginScreen

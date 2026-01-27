@@ -1,14 +1,11 @@
 package de.luh.hci.mid.monumentgo.core.data.repositories
 
-import android.R.attr.order
 import de.luh.hci.mid.monumentgo.core.data.db.DatabaseProvider.supabase
 import de.luh.hci.mid.monumentgo.core.data.model.UserProfile
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.exception.AuthRestException
 import io.github.jan.supabase.auth.providers.builtin.Email
-import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.postgrest
-import io.github.jan.supabase.postgrest.query.Order
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -45,6 +42,9 @@ fun AuthRestException.toUserMessage(): String =
 class UserRepository {
     private val _userProfile = MutableStateFlow<UserProfile?>(null)
     val userProfile: StateFlow<UserProfile?> = _userProfile.asStateFlow()
+
+    val userLevel: Int
+        get() = _userProfile.value?.level ?: -1
 
     suspend private fun updateUserProfile() {
         val userId = supabase.auth.currentUserOrNull()?.id
@@ -122,7 +122,7 @@ class UserRepository {
 
 
     @kotlin.uuid.ExperimentalUuidApi
-    suspend fun setUserScore(score: Int) { // works with DEFINER
+    suspend fun addToUserScore(score: Int) { // works with DEFINER
         try {
             val storedScore : Int = _userProfile.value?.points ?: 0
             println("CURRENT STORED SCORE: $storedScore")
@@ -140,14 +140,6 @@ class UserRepository {
         } catch (e: Exception) {
             println("error during updating profile: $e")
         }
-    }
-
-    fun getUserProfile() : MutableStateFlow<UserProfile?> {
-        return _userProfile
-    }
-    
-    fun getUserLevel() : Int {
-        return _userProfile.value?.level ?: -1
     }
 
     suspend fun getLeaderboard(): List<UserProfile> {

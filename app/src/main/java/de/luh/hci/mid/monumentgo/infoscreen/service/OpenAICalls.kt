@@ -2,6 +2,8 @@ package de.luh.hci.mid.monumentgo.infoscreen.service
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import de.luh.hci.mid.monumentgo.core.data.model.MonumentWithDetails
+import de.luh.hci.mid.monumentgo.core.data.repositories.MonumentRepository
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.MediaType.Companion.toMediaType
@@ -17,10 +19,20 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import java.util.Base64
 
-fun generateSummary(
+private fun joinMonuments(monuments: List<MonumentWithDetails>): String {
+    return monuments.joinToString(
+        separator = ", ",
+        prefix = "[",
+        postfix = "]"
+    ) {
+        "[${it.name}, ${it.region}]"
+    }
+}
+
+suspend fun matchMonument(
     imageFile: File,
     apiKey: String,
-    monumentList: String,
+    monuments: List<MonumentWithDetails>,
     callback: (String?) -> Unit
 ) {
     val client = OkHttpClient()
@@ -30,6 +42,8 @@ fun generateSummary(
     val stream = ByteArrayOutputStream()
     scaled.compress(Bitmap.CompressFormat.JPEG, 80, stream)
     val base64Image = Base64.getEncoder().encodeToString(stream.toByteArray())
+
+    val monumentList = joinMonuments(monuments)
 
     val contentArray = JSONArray()
         .put(

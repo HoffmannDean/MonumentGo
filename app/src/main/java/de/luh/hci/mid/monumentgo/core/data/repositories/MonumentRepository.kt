@@ -26,6 +26,8 @@ class MonumentRepository {
     val monumentsAroundUser: StateFlow<List<MonumentWithDetails>?> =
         _monumentsAroundUser.asStateFlow()
 
+    var selectedMonument: MonumentWithDetails? = null
+
 
     suspend fun updateMonuments() {
         try {
@@ -78,11 +80,32 @@ class MonumentRepository {
 
     suspend fun getMonumentsAroundUser(userLocation: Location) {
         _monumentsAroundUser.value = null   // set null to indicate loading phase
-        _monumentsAroundUser.value = getUndiscoveredMonumentsInRadius(
-            userLocation,
-            SettingsProvider.discoveryRadiusKm * 1000,
-            SettingsProvider.discoveryMonumentsLimit
-        )
-        Log.d("db", "Fetched monuments around user: ${_monumentsAroundUser.value?.map{it.name}}")
+        try {
+            _monumentsAroundUser.value = getUndiscoveredMonumentsInRadius(
+                userLocation,
+                SettingsProvider.discoveryRadiusKm * 1000,
+                SettingsProvider.discoveryMonumentsLimit
+            )
+            Log.d("db", "Fetched monuments around user: ${_monumentsAroundUser.value?.map{it.name}}")
+        } catch (e: Exception) {
+            Log.e("db", "Error: ${e.message}")
+            _monumentsAroundUser.value = emptyList()
+        }
+    }
+
+    suspend fun submitMonumentDiscovery() {
+        val userId = supabase.auth.currentUserOrNull()?.id
+        if (userId == null || selectedMonument == null) throw Exception("User is not logged in")
+        try {
+            supabase.postgrest.from("user_discovered_monuments").insert(
+                buildJsonObject {
+                    put("user_id", userId)
+                    put("monument_id", selectedMonument!!.id)
+                }
+            )
+            selectedMonument = null
+        } catch (e: Exception) {
+            Log.e("db", "Error: ${e.message}")
+        }
     }
 }

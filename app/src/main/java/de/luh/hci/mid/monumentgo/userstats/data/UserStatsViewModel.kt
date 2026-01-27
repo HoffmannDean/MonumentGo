@@ -11,7 +11,6 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import de.luh.hci.mid.monumentgo.MonumentGo
 import de.luh.hci.mid.monumentgo.core.data.repositories.UserRepository
-import de.luh.hci.mid.monumentgo.leaderboard.data.LeaderboardViewModel
 import kotlinx.coroutines.launch
 
 
@@ -30,14 +29,13 @@ class UserStatsViewModel(
         viewModelScope.launch {
             uiState = uiState.copy(isLoading = true)
             try {
-                val statsFlow = userRepository.getUserProfile()
-                val stats = statsFlow.value
-                if (stats != null) {
+                val profile = userRepository.userProfile.value
+                if (profile != null) {
                     uiState = uiState.copy(
                         isLoading = false,
-                        username = stats.username,
-                        level = stats.level,
-                        points = stats.points
+                        username = profile.username,
+                        level = profile.level,
+                        points = profile.points
                     )
                 } else {
                     uiState = uiState.copy(

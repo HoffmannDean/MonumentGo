@@ -35,6 +35,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import de.luh.hci.mid.monumentgo.core.navigation.Screen
 import de.luh.hci.mid.monumentgo.leaderboard.data.LeaderboardEntry
 import de.luh.hci.mid.monumentgo.leaderboard.data.LeaderboardViewModel
 
@@ -61,7 +62,7 @@ fun LeaderboardScreen(
 
             }, navigationIcon = {
                 IconButton(onClick = {
-                    navController.popBackStack()
+                    navController.navigate(Screen.MainMap.route)
                 }) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,

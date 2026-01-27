@@ -24,6 +24,7 @@ import de.luh.hci.mid.monumentgo.core.navigation.Screen
 import de.luh.hci.mid.monumentgo.map.ui.components.GetCurrentLocation
 import de.luh.hci.mid.monumentgo.map.ui.components.LocationPermission
 import de.luh.hci.mid.monumentgo.map.ui.components.OSMMap
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -33,13 +34,26 @@ fun MainMapScreen(
     monumentRepository: MonumentRepository,
     viewModel: MainMapViewModel = MainMapViewModel(monumentRepository)
 ) {
-    LaunchedEffect(Unit) {
-        viewModel.updateMonuments()
-    }
+    // consume error if present
+    val error = navController.previousBackStackEntry?.savedStateHandle?.get<String>("error")
+    val snackbarHostState = remember { SnackbarHostState() }
     var currentLocation by remember { mutableStateOf<Location?>(null) }
     val coroutineScope = rememberCoroutineScope()
 
+    LaunchedEffect(Unit) {
+        viewModel.updateMonuments()
+    }
+    LaunchedEffect(error) {
+        error?.let {
+            navController.previousBackStackEntry
+                ?.savedStateHandle
+                ?.remove<String>("error")
+            snackbarHostState.showSnackbar(it)
+        }
+    }
+
     return Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = {},
@@ -67,6 +81,11 @@ fun MainMapScreen(
                         return@launch
                     }
                     monumentRepository.getMonumentsAroundUser(currentLocation!!)
+                    if (monumentRepository.monumentsAroundUser.value.isNullOrEmpty()) {
+                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                            "error", "No undiscovered monuments found nearby.")
+                        navController.navigate(Screen.MainMap.route)
+                    }
                 }
             }) {
                 Icon(

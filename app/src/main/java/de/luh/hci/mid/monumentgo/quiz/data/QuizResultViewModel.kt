@@ -10,24 +10,24 @@ import kotlinx.coroutines.launch
 import kotlin.uuid.ExperimentalUuidApi
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import de.luh.hci.mid.monumentgo.MonumentGo
+import de.luh.hci.mid.monumentgo.core.data.repositories.MonumentRepository
 
 class QuizResultViewModel(
-    private val userRepo: UserRepository
+    private val userRepo: UserRepository,
+    private val monumentRepo: MonumentRepository
 ) : ViewModel() {
     val level: UInt = 2u
 
     fun getUserPoints() : Int {
-        if (userRepo.userProfile.value == null) {
-            return 0
-        }
-        println("USER_PROFILE: " + userRepo.userProfile.value)
-        return userRepo.getUserProfile().value!!.points
+        return userRepo.userProfile.value?.points ?: -1
     }
 
     @OptIn(ExperimentalUuidApi::class)
-    fun submitScore(newScore: Int) {
-            viewModelScope.launch {
-            userRepo.setUserScore(newScore)
+    fun submitScore(answeredQuestions: Int) {
+        val monumentPoints = monumentRepo.selectedMonument?.points ?: 0
+        viewModelScope.launch {
+            userRepo.addToUserScore(monumentPoints + 25 * answeredQuestions)
+            monumentRepo.submitMonumentDiscovery()
         }
     }
 
@@ -36,7 +36,7 @@ class QuizResultViewModel(
     }
 
     fun getUserLevel() : Int {
-        return userRepo.getUserLevel()
+        return userRepo.userLevel
     }
 
     companion object {
@@ -45,7 +45,7 @@ class QuizResultViewModel(
             initializer {
                 val app = (this[APPLICATION_KEY] as MonumentGo)
                 println("APP INFO: " + app.applicationInfo)
-                QuizResultViewModel(app.userRepository)}
+                QuizResultViewModel(app.userRepository, monumentRepo = app.monumentRepository)}
         }
     }
 }
