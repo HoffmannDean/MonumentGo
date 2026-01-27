@@ -1,5 +1,6 @@
 package de.luh.hci.mid.monumentgo.infoscreen.ui
 
+import android.R.attr.enabled
 import android.graphics.BitmapFactory
 import android.media.MediaPlayer
 import android.util.Log
@@ -67,7 +68,6 @@ fun ImageInfoScreen(
     var refresh by remember { mutableIntStateOf(0) }
     val context = LocalContext.current
     val audioFile = viewModel.ttsAudioFile
-    val isPlayerReady = remember { mutableStateOf(false)}
 
     val mediaPlayer = remember(audioFile) {
         audioFile?.let {
@@ -113,6 +113,7 @@ fun ImageInfoScreen(
         topBar = {
             InfoTopBar (
                 name = monumentRepository.selectedMonument.value?.name ?: "Matching monument...",
+                playerEnabled = viewModel.isPlayerReady.value,
                 onBackClicked = {
                     navController.navigate(Screen.Camera.route)
                 },

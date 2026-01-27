@@ -62,14 +62,6 @@ fun matchMonument(
         You are given an image and a fixed list of monuments with their names and a list of metadata tags, gathered from OpenStreetMaps.
         Your task is to determine whether the image depicts one and only one monument from the provided list.
         
-        Instructions:
-        - Carefully analyze the visual features of the image (architecture, materials, shape, surroundings, etc.)
-        - Compare these features only against the monuments in the given list
-        
-        Constraints:
-        - Do not invent new monuments
-        - There can be some uncertainty in the guess, but it should not be completely off
-        
         Output rules:
         - If the image matches exactly one monument from the list, return the number of the monument in the list
         - If the image does not match any monuments from the list, return 0
@@ -169,7 +161,7 @@ fun generateTTS(
 ) {
     val jsonBody =
         JSONObject().put("model", "gpt-4o-mini-tts").put("voice", "alloy").put("format", "mp3")
-            .put("input", description)
+            .put("input", description.replace("#", ""))
 
     val requestBody = jsonBody.toString().toRequestBody("application/json".toMediaType())
 

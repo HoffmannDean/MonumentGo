@@ -15,4 +15,8 @@ data class MonumentWithDetails(
     val points: Int,
     val region: String,
     val osmTags: JsonObject
-)
+) {
+    fun toMonument(): Monument {
+        return Monument(id, lat, lon)
+    }
+}

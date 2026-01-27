@@ -66,12 +66,13 @@ class MonumentRepository {
         limit: Int
     ): List<MonumentWithDetails> {
         try {
-            return supabase.postgrest.rpc("get_monument_details_around", buildJsonObject {
+            val results = supabase.postgrest.rpc("get_monument_details_around", buildJsonObject {
                 put("lat", userLocation.latitude)
                 put("lon", userLocation.longitude)
                 put("radiusmeter", radiusMeter)
                 put("monumentlimit", limit)
             }).decodeList<MonumentWithDetails>()
+            return results
         } catch (e: Exception) {
             Log.e("db", "Error: ${e.message}")
             return emptyList()

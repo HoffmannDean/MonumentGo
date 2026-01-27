@@ -12,6 +12,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -31,6 +32,10 @@ fun QuizResultScreen(
 ) {
     val correctAnswers: Int = QuizRepository.currentScore
     val userPoints: Int = resultViewModel.getUserPoints()
+    LaunchedEffect(Unit) {
+        resultViewModel.submitScore(currentScore)
+    }
+
     Scaffold { paddingValues ->
         Column(
             modifier = Modifier
@@ -68,7 +73,6 @@ fun QuizResultScreen(
             ) {
                 ElevatedButton(
                     onClick = {
-                        resultViewModel.submitScore(currentScore)
                         navController.navigate(Screen.MainMap.route)
                     }
                 ) {

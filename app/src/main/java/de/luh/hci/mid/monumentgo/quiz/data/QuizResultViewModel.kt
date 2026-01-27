@@ -30,6 +30,8 @@ class QuizResultViewModel(
 
     @OptIn(ExperimentalUuidApi::class)
     fun submitScore(answeredQuestions: Int) {
+        if (userRepo.userProfile.value == null || monumentRepo.selectedMonument.value == null) return;
+        if (monumentRepo.discoveredMonuments.value?.contains(monumentRepo.selectedMonument.value?.toMonument()) != false) return;
         viewModelScope.launch {
             userRepo.addToUserScore(calculateScore(answeredQuestions))
             monumentRepo.submitMonumentDiscovery()

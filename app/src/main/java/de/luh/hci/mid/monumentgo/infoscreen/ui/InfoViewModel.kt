@@ -41,6 +41,8 @@ class InfoViewModel(
     var quizLoaded: Boolean by mutableStateOf(false)
         private set
 
+    var isPlayerReady = mutableStateOf(false)
+
     fun loadDescription(monumentRepository: MonumentRepository, onUpdate: (String?) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             matchMonument(imageFile, BuildConfig.OPENAI_API_KEY, monumentRepository.monumentsAroundUser.value!!) { monument ->
@@ -64,14 +66,15 @@ class InfoViewModel(
                         description = summary
                         onUpdate(null)
 
-//                        val audioFile = File(getApplication<Application>().cacheDir, "description.mp3")
-//                        generateTTS(description, BuildConfig.OPENAI_API_KEY, audioFile) { success ->
-//                            if (success) {
-//                                viewModelScope.launch(Dispatchers.Main) {
-//                                    ttsAudioFile = audioFile
-//                                }
-//                            }
-//                        }
+                        val audioFile = File(getApplication<Application>().cacheDir, "description.mp3")
+                        generateTTS(description, BuildConfig.OPENAI_API_KEY, audioFile) { success ->
+                            if (success) {
+                                viewModelScope.launch(Dispatchers.Main) {
+                                    ttsAudioFile = audioFile
+                                    isPlayerReady.value = true
+                                }
+                            }
+                        }
                         generateQuiz(monument, summary, BuildConfig.OPENAI_API_KEY) { quizResult ->
                             Log.d("openai", "generated quiz.")
                             if (quizResult == null) {
