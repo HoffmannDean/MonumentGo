@@ -2,6 +2,7 @@ package de.luh.hci.mid.monumentgo.infoscreen.ui
 
 import android.graphics.BitmapFactory
 import android.media.MediaPlayer
+import android.util.Log
 import android.widget.TextView
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
@@ -62,11 +63,7 @@ fun ImageInfoScreen(
     viewModel: InfoViewModel = viewModel()
 ) {
     var refresh by remember { mutableIntStateOf(0) }
-
-    val context = LocalContext.current
     val audioFile = viewModel.ttsAudioFile
-
-    val isPlayerReady = remember { mutableStateOf(false)}
 
     val mediaPlayer = remember(audioFile) {
         audioFile?.let {
@@ -88,8 +85,15 @@ fun ImageInfoScreen(
 
 
     LaunchedEffect(Unit) {
-        viewModel.loadDescription(monumentRepository) {
+        val error = viewModel.loadDescription(monumentRepository) {
             refresh++
+        }
+        if (error != null) {
+            Log.e("openai", error)
+            if (monumentRepository.selectedMonument.value == null) {
+                navController.currentBackStackEntry?.savedStateHandle?.set("error", error)
+                navController.navigate(Screen.MainMap.route)
+            }
         }
     }
 

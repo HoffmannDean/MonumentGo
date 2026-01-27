@@ -14,9 +14,9 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import de.luh.hci.mid.monumentgo.BuildConfig
 import de.luh.hci.mid.monumentgo.core.data.repositories.MonumentRepository
 import de.luh.hci.mid.monumentgo.infoscreen.service.matchMonument
-import de.luh.hci.mid.monumentgo.infoscreen.service.generateQuiz
-import de.luh.hci.mid.monumentgo.infoscreen.service.generateSummary
+import de.luh.hci.mid.monumentgo.infoscreen.service.generateSummaryAndQuiz
 import de.luh.hci.mid.monumentgo.infoscreen.service.generateTTS
+import de.luh.hci.mid.monumentgo.infoscreen.service.getWikipediaArticle
 import de.luh.hci.mid.monumentgo.quiz.data.Question
 import de.luh.hci.mid.monumentgo.quiz.data.QuizRepository
 import kotlinx.coroutines.Dispatchers
@@ -40,25 +40,31 @@ class InfoViewModel(
     var quizLoaded: Boolean by mutableStateOf(false)
         private set
 
-    fun loadDescription(monumentRepository: MonumentRepository, onUpdate: () -> Unit) {
+    fun loadDescription(monumentRepository: MonumentRepository, onUpdate: () -> Unit): String? {
+        var error: String? = null
         viewModelScope.launch(Dispatchers.IO) {
             matchMonument(imageFile, BuildConfig.OPENAI_API_KEY, monumentRepository.monumentsAroundUser.value!!) { monument ->
-                if (monument == null) return@matchMonument
+                if (monument == null) {
+                    error = "No monument matched the image."
+                    return@matchMonument
+                }
                 monumentRepository.selectedMonument.value = monument
-                generateSummary(monument, BuildConfig.OPENAI_API_KEY) { summary ->
-                    description = summary ?: "Failed to load description"
-                    onUpdate()
+                getWikipediaArticle(monument, BuildConfig.OPENAI_API_KEY) { article ->
+                    if (article == null) {
+                        error = "Could not fetch article for monument."
+                        return@getWikipediaArticle
+                    }
+                    generateSummaryAndQuiz(monument, article, BuildConfig.OPENAI_API_KEY) { summary, quizResult ->
+                        onUpdate()
 
-                    val audioFile = File(getApplication<Application>().cacheDir, "description.mp3")
-                    generateTTS(description, BuildConfig.OPENAI_API_KEY, audioFile) { success ->
-                        if (success) {
-                            viewModelScope.launch(Dispatchers.Main) {
-                                ttsAudioFile = audioFile
+                        val audioFile = File(getApplication<Application>().cacheDir, "description.mp3")
+                        generateTTS(description, BuildConfig.OPENAI_API_KEY, audioFile) { success ->
+                            if (success) {
+                                viewModelScope.launch(Dispatchers.Main) {
+                                    ttsAudioFile = audioFile
+                                }
                             }
                         }
-                    }
-
-                    generateQuiz(description, BuildConfig.OPENAI_API_KEY) { quizResult ->
                         viewModelScope.launch(Dispatchers.Main) {
                             quiz = quizResult ?: emptyList()
                             println(quiz)
@@ -68,6 +74,7 @@ class InfoViewModel(
                 }
             }
         }
+        return error
     }
 
     fun prepareQuizForNavigation() {

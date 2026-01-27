@@ -15,8 +15,6 @@ import de.luh.hci.mid.monumentgo.infoscreen.ui.ImageInfoScreen
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        WindowCompat.setDecorFitsSystemWindows(window, true)
-
         enableEdgeToEdge()
         setContent {
             MonumentGoTheme {

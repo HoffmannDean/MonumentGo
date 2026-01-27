@@ -26,6 +26,7 @@ class MainMapViewModel(
     suspend fun updateMonuments() {
         monumentRepository.updateDiscoveredMonuments()
         monumentRepository.updateMonuments()
+        monumentRepository.selectedMonument.value = null
         Log.d("map", monumentRepository.discoveredMonuments.value?.count().toString())
         _uiState.value = MapState.Ready(
             monumentRepository.monuments.value ?: setOf(),

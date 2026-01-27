@@ -19,12 +19,14 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import java.util.Base64
 import androidx.core.graphics.scale
-import kotlinx.serialization.json.addJsonObject
-import kotlinx.serialization.json.buildJsonArray
-import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.put
-import kotlinx.serialization.json.putJsonArray
-import kotlinx.serialization.json.putJsonObject
+import de.luh.hci.mid.monumentgo.infoscreen.service.OKHttp.client
+import java.net.URLDecoder
+
+const val userAgent = "MonumentGo/1.0 (https://github.com/HoffmannDean/MonumentGo; john.klein@stud.uni-hannover.de)"
+
+object OKHttp {
+    val client = OkHttpClient()
+}
 
 private fun buildMonumentList(monuments: List<MonumentWithDetails>): String {
     return monuments.mapIndexed { index, details ->
@@ -41,7 +43,6 @@ fun matchMonument(
     monuments: List<MonumentWithDetails>,
     callback: (MonumentWithDetails?) -> Unit
 ) {
-    val client = OkHttpClient()
 
     val bitmap = BitmapFactory.decodeFile(imageFile.absolutePath)
     val scaled = bitmap.scale(1024, 1024)
@@ -124,17 +125,43 @@ fun matchMonument(
     })
 }
 
-fun generateSummary(
+fun getWikipediaArticle(
     monument: MonumentWithDetails, apiKey: String, callback: (String?) -> Unit
 ) {
-    callback(monument.toString())
+    // Extract the article title from the URL
+    val title = monument.wikiUrl.substringAfter("/wiki/").let {
+        URLDecoder.decode(it, "UTF-8")
+    }
+
+    // Wikipedia API endpoint
+    val apiUrl = "https://en.wikipedia.org/w/api.php" +
+            "?action=query" +
+            "&prop=extracts" +
+            "&explaintext=true" +  // get plain text
+            "&format=json" +
+            "&titles=$title"
+
+    val request = Request.Builder()
+        .url(apiUrl)
+        .addHeader("User-Agent", userAgent)
+        .build()
+
+    client.newCall(request).execute().use { response ->
+        if (response.isSuccessful) {
+            val body = response.body.string()
+            val json = JSONObject(body)
+            val pages = json.getJSONObject("query").getJSONObject("pages")
+            val page = pages.keys().asSequence().firstOrNull()?.let { pages.getJSONObject(it) }
+            callback(page?.optString("extract"))
+        } else {
+            callback(null)
+        }
+    }
 }
 
 fun generateTTS(
     description: String, apiKey: String, outputFile: File, callback: (Boolean) -> Unit
 ) {
-    val client = OkHttpClient()
-
     val jsonBody =
         JSONObject().put("model", "gpt-4o-mini-tts").put("voice", "alloy").put("format", "mp3")
             .put("input", description)
@@ -166,13 +193,12 @@ fun generateTTS(
     })
 }
 
-fun generateQuiz(
-    description: String,
+fun generateSummaryAndQuiz(
+    monument: MonumentWithDetails,
+    article: String,
     apiKey: String,
-    callback: (List<Triple<String, String, List<String>>>?) -> Unit
+    callback: (String?, List<Triple<String, String, List<String>>>?) -> Unit
 ) {
-    val client = OkHttpClient()
-
     val prompt = """
         You are creating a short quiz based ONLY on the following image description.
 
@@ -206,9 +232,9 @@ fun generateQuiz(
             ]
         }
         
-        Image description:
+        Wikipedia article:
 
-        $description
+        $article
     """.trimIndent()
 
     val message = JSONObject().put("role", "user")
@@ -226,13 +252,13 @@ fun generateQuiz(
 
     client.newCall(request).enqueue(object : Callback {
         override fun onFailure(call: Call, e: IOException) {
-            callback(null)
+            callback("", null)
         }
 
         override fun onResponse(call: Call, response: Response) {
             response.use {
                 if (!response.isSuccessful) {
-                    callback(null)
+                    callback("", null)
                     return
                 }
 
@@ -255,10 +281,10 @@ fun generateQuiz(
                         result.add(Triple(question, correct, incorrect))
                     }
 
-                    callback(result)
+                    callback("", result)
                 } catch (e: Exception) {
                     // In case GPT returns invalid JSON
-                    callback(null)
+                    callback("", null)
                 }
             }
         }
