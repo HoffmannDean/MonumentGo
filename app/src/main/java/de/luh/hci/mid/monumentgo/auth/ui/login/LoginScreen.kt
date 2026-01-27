@@ -10,8 +10,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -20,8 +23,13 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -49,6 +57,7 @@ fun LoginScreen(
             navController.navigate(Screen.MainMap.route)
         }
     }
+    val passwordFocusRequester = remember { FocusRequester() }
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     return Scaffold { paddingValues ->
@@ -69,7 +78,7 @@ fun LoginScreen(
                         horizontalArrangement = Arrangement.Start
                     ) {
                         Text(
-                            text = "Einloggen",
+                            text = "Login",
                             style = MaterialTheme.typography.headlineMedium
                         )
                     }
@@ -78,6 +87,16 @@ fun LoginScreen(
                         Text("Email")
                         TextField(
                             modifier = Modifier.fillMaxWidth(),
+                            singleLine = true,
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Email,
+                                imeAction = ImeAction.Next,
+                            ),
+                            keyboardActions = KeyboardActions(
+                                onNext = {
+                                    passwordFocusRequester.requestFocus()
+                                }
+                            ),
                             value = uiState.email,
                             onValueChange = { viewModel.changeEmail(it) },
                             placeholder = {
@@ -87,9 +106,14 @@ fun LoginScreen(
                             }
                         )
                         Spacer(modifier = Modifier.height(24.dp))
-                        Text("Passwort")
+                        Text("Password")
                         TextField(
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier.fillMaxWidth().focusRequester(passwordFocusRequester),
+                            singleLine = true,
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Password,
+                                imeAction = ImeAction.Done
+                            ),
                             value = uiState.password,
                             onValueChange = { viewModel.changePassword(it) },
                             visualTransformation = PasswordVisualTransformation(),
@@ -105,7 +129,7 @@ fun LoginScreen(
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        ElevatedButton(
+                        FilledTonalButton(
                             onClick = {
                                 viewModel.viewModelScope.launch {
                                     val response = viewModel.login()
@@ -121,14 +145,14 @@ fun LoginScreen(
                                 }
                             }
                         ) {
-                            Text(text = "Absenden")
+                            Text(text = "Log in")
                         }
                         TextButton(
                             onClick = {
                                 navController.navigate(Screen.Register.route)
                             }
                         ) {
-                            Text("Oder erstelle ein Konto")
+                            Text("Or create an account")
                         }
                     }
                 }

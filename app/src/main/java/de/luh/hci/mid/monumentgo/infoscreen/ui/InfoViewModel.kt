@@ -1,6 +1,7 @@
 package de.luh.hci.mid.monumentgo.infoscreen.ui
 
 import android.app.Application
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -12,14 +13,14 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import de.luh.hci.mid.monumentgo.BuildConfig
 import de.luh.hci.mid.monumentgo.core.data.repositories.MonumentRepository
-import de.luh.hci.mid.monumentgo.infoscreen.service.describeImage
-import de.luh.hci.mid.monumentgo.infoscreen.service.extractMonumentName
 import de.luh.hci.mid.monumentgo.infoscreen.service.generateQuiz
+import de.luh.hci.mid.monumentgo.infoscreen.service.generateSummary
+import de.luh.hci.mid.monumentgo.infoscreen.service.matchMonument
 import de.luh.hci.mid.monumentgo.infoscreen.service.generateTTS
+import de.luh.hci.mid.monumentgo.infoscreen.service.getWikipediaArticle
 import de.luh.hci.mid.monumentgo.quiz.data.Question
 import de.luh.hci.mid.monumentgo.quiz.data.QuizRepository
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.io.File
 
@@ -28,10 +29,7 @@ class InfoViewModel(
     application: Application,
     val imageFile: File
 ) : AndroidViewModel(application) {
-    var description: String = "Generating Information"
-        private set
-
-    var monumentName: String by mutableStateOf("Loading...")
+    var description: String = "Generating Information..."
         private set
 
     var ttsAudioFile: File? by mutableStateOf(null)
@@ -43,46 +41,51 @@ class InfoViewModel(
     var quizLoaded: Boolean by mutableStateOf(false)
         private set
 
-    var monuments: String by mutableStateOf("No monuments found")
-        private set
+    var isPlayerReady = mutableStateOf(false)
 
-    fun getMonumentsAroundUser(monumentRepository: MonumentRepository) {
-        monuments = monumentRepository.monumentsAroundUser.value?.joinToString(
-            separator = ", ",
-            prefix = "[",
-            postfix = "]"
-        ) {
-            "[${it.name}, ${it.region}]"
-        }.toString()
-    }
-
-    fun loadDescription(monumentRepository: MonumentRepository, onUpdate: () -> Unit) {
-        getMonumentsAroundUser(monumentRepository)
+    fun loadDescription(monumentRepository: MonumentRepository, onUpdate: (String?) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
-            describeImage(imageFile, BuildConfig.OPENAI_API_KEY, monuments) {
-                description = it ?: "Failed to load description"
-                onUpdate()
-
-                extractMonumentName(imageFile, BuildConfig.OPENAI_API_KEY) { name ->
-                    viewModelScope.launch(Dispatchers.Main) {
-                        monumentName = name ?: "Unknown Monument"
-                    }
+            matchMonument(imageFile, BuildConfig.OPENAI_API_KEY, monumentRepository.monumentsAroundUser.value!!) { monument ->
+                if (monument == null) {
+                    onUpdate("No monument matched the image.")
+                    return@matchMonument
                 }
-
-                val audioFile = File(getApplication<Application>().cacheDir, "description.mp3")
-                generateTTS(description, BuildConfig.OPENAI_API_KEY, audioFile) { success ->
-                    if (success) {
-                        viewModelScope.launch(Dispatchers.Main) {
-                            ttsAudioFile = audioFile
+                monumentRepository.selectedMonument.value = monument
+                getWikipediaArticle(monument, BuildConfig.OPENAI_API_KEY) { article ->
+                    Log.d("openai", "fetched article.")
+                    if (article == null) {
+                        onUpdate("Could not fetch article for monument.")
+                        return@getWikipediaArticle
+                    }
+                    generateSummary(monument, article, BuildConfig.OPENAI_API_KEY) { summary ->
+                        Log.d("openai", "generated summary.")
+                        if (summary == null) {
+                            onUpdate("Failed to create summary.")
+                            return@generateSummary
                         }
-                    }
-                }
+                        description = summary
+                        onUpdate(null)
 
-                generateQuiz(description, BuildConfig.OPENAI_API_KEY) { quizResult ->
-                    viewModelScope.launch(Dispatchers.Main) {
-                        quiz = quizResult ?: emptyList()
-                        println(quiz)
-                        quizLoaded = true
+                        val audioFile = File(getApplication<Application>().cacheDir, "description.mp3")
+                        generateTTS(description, BuildConfig.OPENAI_API_KEY, audioFile) { success ->
+                            if (success) {
+                                viewModelScope.launch(Dispatchers.Main) {
+                                    ttsAudioFile = audioFile
+                                    isPlayerReady.value = true
+                                }
+                            }
+                        }
+                        generateQuiz(monument, summary, BuildConfig.OPENAI_API_KEY) { quizResult ->
+                            Log.d("openai", "generated quiz.")
+                            if (quizResult == null) {
+                                onUpdate("Failed to create quiz.")
+                                return@generateQuiz
+                            }
+                            viewModelScope.launch(Dispatchers.Main) {
+                                quiz = quizResult
+                                quizLoaded = true
+                            }
+                        }
                     }
                 }
             }

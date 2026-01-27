@@ -3,9 +3,11 @@ package de.luh.hci.mid.monumentgo.core.navigation
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import de.luh.hci.mid.monumentgo.MonumentGo
 import de.luh.hci.mid.monumentgo.analytics.ui.AnalyticsScreen
 import de.luh.hci.mid.monumentgo.auth.ui.login.LoginScreen
@@ -16,7 +18,7 @@ import de.luh.hci.mid.monumentgo.infoscreen.ui.InfoViewModel
 import de.luh.hci.mid.monumentgo.leaderboard.ui.LeaderboardScreen
 import de.luh.hci.mid.monumentgo.map.ui.screen.MainMapScreen
 import de.luh.hci.mid.monumentgo.profile.ui.ProfileScreen
-import de.luh.hci.mid.monumentgo.quiz.data.QuizResultScreen
+import de.luh.hci.mid.monumentgo.quiz.ui.QuizResultScreen
 import de.luh.hci.mid.monumentgo.quiz.ui.QuizScreen
 import de.luh.hci.mid.monumentgo.settings.ui.SettingsScreen
 
@@ -33,12 +35,8 @@ fun AppNavigation() {
     NavHost(navController = navController, startDestination = Screen.Login.route) {
 
 
-        composable(Screen.AnalyticsPersonal.route) {
-            AnalyticsScreen(navController, PERSONAL_STATE)
-        }
-
-        composable (Screen.AnalyticsLeaderBoard.route){
-            AnalyticsScreen(navController, LEADERBOARD_STATE)
+        composable(Screen.Leaderboard.route) {
+            LeaderboardScreen(navController)
         }
 
         composable(Screen.MainMap.route) {
@@ -80,10 +78,6 @@ fun AppNavigation() {
 
         composable(Screen.Register.route) {
             RegisterScreen(navController)
-        }
-
-        composable(Screen.Leaderboard.route) {
-            LeaderboardScreen(navController)
         }
 
     }

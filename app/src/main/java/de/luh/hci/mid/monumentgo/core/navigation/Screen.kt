@@ -3,8 +3,7 @@ package de.luh.hci.mid.monumentgo.core.navigation
 
 sealed class Screen(val route: String, val arg: String = "") {
 
-    object AnalyticsPersonal : Screen("analytics_personal")
-    object AnalyticsLeaderBoard : Screen("analytics_leaderboard")
+    object Leaderboard : Screen("leaderboard")
     object MainMap : Screen("main_map")
     object Profile : Screen("profile")
     object Settings : Screen("settings")
@@ -20,6 +19,5 @@ sealed class Screen(val route: String, val arg: String = "") {
     object Login : Screen("login")
 
     object Register : Screen("register")
-    object Leaderboard : Screen("leaderboard")
 
 }
