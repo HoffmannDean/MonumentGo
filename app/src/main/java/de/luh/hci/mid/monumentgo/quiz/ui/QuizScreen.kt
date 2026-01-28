@@ -17,6 +17,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import de.luh.hci.mid.monumentgo.core.data.repositories.UserRepository
 import de.luh.hci.mid.monumentgo.core.navigation.Screen
 import de.luh.hci.mid.monumentgo.quiz.data.QuizRepository
 import de.luh.hci.mid.monumentgo.quiz.data.QuizViewModel
@@ -26,7 +27,8 @@ import kotlin.math.min
 @Composable
 fun QuizScreen(
     navController: NavController,
-    viewModel: QuizViewModel = viewModel()
+    userRepo: UserRepository,
+    viewModel: QuizViewModel = viewModel(factory = QuizViewModel.Companion.Factory)
 ) {
     val currentQuestion = viewModel.getCurrentQuestion()
 

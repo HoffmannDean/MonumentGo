@@ -60,7 +60,7 @@ fun QuizResultScreen(
                 )
 
                 Text(
-                    "$userPoints Points + ${resultViewModel.calculateScore(correctAnswers)}",
+                    "$userPoints Points (+ ${resultViewModel.calculateScore(correctAnswers)})",
                     style = MaterialTheme.typography.headlineMedium
                 )
 
