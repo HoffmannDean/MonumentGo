@@ -65,7 +65,7 @@ fun AppNavigation() {
         }
 
         composable(Screen.Quiz.route) {
-            QuizScreen(navController)
+            QuizScreen(navController, app.userRepository)
         }
 
         composable(Screen.QuizResult.route) {
@@ -77,7 +77,7 @@ fun AppNavigation() {
         }
 
         composable(Screen.Register.route) {
-            RegisterScreen(navController)
+            RegisterScreen(navController, app.userRepository)
         }
 
     }

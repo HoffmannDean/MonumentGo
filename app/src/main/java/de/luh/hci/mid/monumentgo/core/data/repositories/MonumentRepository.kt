@@ -104,7 +104,6 @@ class MonumentRepository {
                     put("monument_id", selectedMonument.value!!.id)
                 }
             )
-            selectedMonument.value = null
             updateDiscoveredMonuments()
         } catch (e: Exception) {
             Log.e("db", "Error: ${e.message}")

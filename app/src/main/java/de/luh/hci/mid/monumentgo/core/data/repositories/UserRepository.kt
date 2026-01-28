@@ -1,14 +1,19 @@
 package de.luh.hci.mid.monumentgo.core.data.repositories
 
+import android.util.Log
 import de.luh.hci.mid.monumentgo.core.data.db.DatabaseProvider.supabase
 import de.luh.hci.mid.monumentgo.core.data.model.UserProfile
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.exception.AuthRestException
 import io.github.jan.supabase.auth.providers.builtin.Email
 import io.github.jan.supabase.postgrest.postgrest
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 
@@ -39,14 +44,25 @@ fun AuthRestException.toUserMessage(): String =
             "Unexpected error. Please try again."
     }
 
-class UserRepository {
+class UserRepository(
+    private val applicationScope: CoroutineScope
+) {
     private val _userProfile = MutableStateFlow<UserProfile?>(null)
     val userProfile: StateFlow<UserProfile?> = _userProfile.asStateFlow()
 
-    val userLevel: Int
-        get() = _userProfile.value?.level ?: -1
+    init {
+        applicationScope.launch {
+            userProfile.collect {
+                Log.d("auth", "User profile updated: $it")
+            }
+        }
+    }
 
-    suspend private fun updateUserProfile() {
+    val userLevel: Int
+        get() = userProfile.value?.level ?: -1
+
+    private suspend fun updateUserProfile() {
+        Log.d("auth", "Updating user profile...")
         val userId = supabase.auth.currentUserOrNull()?.id
         if (userId == null) throw Exception("User is not logged in")
         val profile = supabase.postgrest.rpc("get_profiles_with_level") {
@@ -55,25 +71,22 @@ class UserRepository {
             }
         }.decodeSingle<UserProfile>()
         _userProfile.value = profile
-    }
-
-    suspend fun getAllUserProfiles(): List<UserProfile> {
-        return supabase.postgrest.rpc("get_profiles_with_level").decodeList<UserProfile>()
+        Log.e("db", _userProfile.value.toString())
     }
 
 
     suspend fun trySilentSignIn(): AuthResponse {
-        val session = supabase.auth.currentSessionOrNull()
+        Log.e("auth", "User is attempting silent sign in.")
         val user = supabase.auth.currentUserOrNull()
-        if (session == null || user == null) {
+        if (user == null) {
             return AuthResponse.Error("Not logged in")
         }
-        println("USER: " + user)
         updateUserProfile()
         return AuthResponse.Success(_userProfile.value!!)
     }
 
     suspend fun signUpNewUser(username: String, email: String, password: String): AuthResponse {
+        Log.e("auth", "User is signing up.")
         try {
             val user = supabase.auth.signUpWith(Email) {
                 this.email = email
@@ -93,31 +106,27 @@ class UserRepository {
     }
 
     suspend fun signInWithEmail(email: String, password: String): AuthResponse {
+        Log.e("auth", "User is signing in.")
         try {
             supabase.auth.signInWith(Email) {
                 this.email = email
                 this.password = password
             }
-            val user = supabase.auth.currentUserOrNull()
-            if (user == null) {
-                return AuthResponse.Error("Failed retrieving user")
-            }
             updateUserProfile()
             return AuthResponse.Success(_userProfile.value!!)
         } catch (e: AuthRestException) {
+            Log.e("auth", e.toUserMessage())
             return AuthResponse.Error(e.toUserMessage())
         } catch (e: Exception) {
+            Log.e("auth", e.message.toString())
             return AuthResponse.Error(e.toString())
         }
     }
 
     suspend fun signOut() {
+        Log.e("auth", "User is logging out.")
         supabase.auth.signOut()
         _userProfile.value = null
-    }
-
-    suspend fun earnPoints(monumentId: Int, points: Int) {
-        // TODO: Implement this
     }
 
 

@@ -39,6 +39,9 @@ import de.luh.hci.mid.monumentgo.core.data.repositories.UserRepository
 import de.luh.hci.mid.monumentgo.core.navigation.Screen
 import de.luh.hci.mid.monumentgo.core.ui.theme.MonumentGoTheme
 import de.luh.hci.mid.monumentgo.settings.data.SettingsProvider
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
@@ -137,7 +140,8 @@ fun SettingsScreen(x0: NavHostController, userRepository: UserRepository) {
 @Preview(showBackground = true)
 @Composable
 fun SettingsScreenPreview() {
+    val appScope = remember { CoroutineScope(SupervisorJob() + Dispatchers.Default) }
     MonumentGoTheme {
-        SettingsScreen(rememberNavController(), UserRepository())
+        SettingsScreen(rememberNavController(), UserRepository(appScope))
     }
 }

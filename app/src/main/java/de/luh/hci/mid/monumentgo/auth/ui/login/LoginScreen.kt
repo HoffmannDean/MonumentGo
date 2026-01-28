@@ -42,13 +42,16 @@ import de.luh.hci.mid.monumentgo.core.data.repositories.AuthResponse
 import de.luh.hci.mid.monumentgo.core.data.repositories.UserRepository
 import de.luh.hci.mid.monumentgo.core.navigation.Screen
 import de.luh.hci.mid.monumentgo.core.ui.theme.MonumentGoTheme
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 
 @Composable
 fun LoginScreen(
     navController: NavController,
     userRepository: UserRepository,
-    viewModel: LoginViewModel = viewModel()
+    viewModel: LoginViewModel = LoginViewModel(userRepository)
 ) {
     LaunchedEffect(Unit) {
         val response = userRepository.trySilentSignIn()
@@ -164,7 +167,8 @@ fun LoginScreen(
 @Preview(showBackground = true)
 @Composable
 fun LoginScreenPreview() {
+    val appScope = remember { CoroutineScope(SupervisorJob() + Dispatchers.Default) }
     MonumentGoTheme {
-        LoginScreen(rememberNavController(), UserRepository())
+        LoginScreen(rememberNavController(), UserRepository(appScope))
     }
 }

@@ -15,7 +15,7 @@ data class LoginState(
 )
 
 class LoginViewModel(
-    private val userRepo: UserRepository = UserRepository()
+    private val userRepo: UserRepository
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(LoginState())
     val uiState: StateFlow<LoginState> = _uiState.asStateFlow()

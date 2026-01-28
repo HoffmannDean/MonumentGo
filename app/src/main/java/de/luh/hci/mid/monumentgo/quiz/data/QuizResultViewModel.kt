@@ -1,5 +1,6 @@
 package de.luh.hci.mid.monumentgo.quiz.data
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -30,8 +31,9 @@ class QuizResultViewModel(
 
     @OptIn(ExperimentalUuidApi::class)
     fun submitScore(answeredQuestions: Int) {
+        Log.e("quiz", "user Profile: ${userRepo.userProfile.value}")
+        Log.e("quiz", "monument: ${monumentRepo.selectedMonument.value}")
         if (userRepo.userProfile.value == null || monumentRepo.selectedMonument.value == null) return;
-        if (monumentRepo.discoveredMonuments.value?.contains(monumentRepo.selectedMonument.value?.toMonument()) != false) return;
         viewModelScope.launch {
             userRepo.addToUserScore(calculateScore(answeredQuestions))
             monumentRepo.submitMonumentDiscovery()

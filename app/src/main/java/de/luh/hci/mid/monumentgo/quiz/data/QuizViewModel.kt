@@ -4,13 +4,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
+import de.luh.hci.mid.monumentgo.MonumentGo
 import de.luh.hci.mid.monumentgo.core.data.repositories.UserRepository
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class QuizViewModel(
-    private val userRepo: UserRepository = UserRepository()
+    private val userRepo: UserRepository
 ): ViewModel() {
     init{
         QuizRepository.currentScore = 0
@@ -56,6 +61,16 @@ class QuizViewModel(
             }
 
             selectedAnswerIndex = -1
+        }
+    }
+
+    companion object {
+        var Factory: ViewModelProvider.Factory = viewModelFactory {
+            // val questions = listOf<Question>();
+            initializer {
+                val app = (this[APPLICATION_KEY] as MonumentGo)
+                println("APP INFO: " + app.applicationInfo)
+                QuizViewModel(app.userRepository)}
         }
     }
 }

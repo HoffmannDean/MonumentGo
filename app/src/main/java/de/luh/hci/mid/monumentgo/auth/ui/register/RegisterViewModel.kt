@@ -16,7 +16,7 @@ data class RegisterState(
 )
 
 class RegisterViewModel(
-    private val userRepo: UserRepository = UserRepository()
+    private val userRepo: UserRepository
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(RegisterState())
     val uiState: StateFlow<RegisterState> = _uiState.asStateFlow()
