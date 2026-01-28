@@ -1,5 +1,6 @@
 package de.luh.hci.mid.monumentgo.leaderboard.data
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
@@ -28,6 +29,7 @@ class LeaderboardViewModel(
     private val _isLoading = MutableStateFlow(false)
 
     init {
+        Log.d("auth", "fetching leaderboard...")
         fetchLeaderboard()
     }
 
@@ -60,6 +62,7 @@ class LeaderboardViewModel(
     }
 
     fun getUserLevel() : Int {
+        Log.d("auth", userRepository.userProfile.value.toString())
         return userRepository.userLevel
     }
 

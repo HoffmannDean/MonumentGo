@@ -77,7 +77,7 @@ fun AppNavigation() {
         }
 
         composable(Screen.Register.route) {
-            RegisterScreen(navController)
+            RegisterScreen(navController, app.userRepository)
         }
 
     }

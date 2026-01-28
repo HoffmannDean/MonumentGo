@@ -10,7 +10,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class QuizViewModel(
-    private val userRepo: UserRepository = UserRepository()
+    private val userRepo: UserRepository
 ): ViewModel() {
     init{
         QuizRepository.currentScore = 0

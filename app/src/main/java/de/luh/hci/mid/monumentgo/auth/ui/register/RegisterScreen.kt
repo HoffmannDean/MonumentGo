@@ -40,6 +40,7 @@ import de.luh.hci.mid.monumentgo.core.data.repositories.AuthResponse
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import de.luh.hci.mid.monumentgo.core.data.repositories.UserRepository
 import de.luh.hci.mid.monumentgo.core.navigation.Screen
 import kotlinx.coroutines.launch
 
@@ -47,7 +48,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun RegisterScreen(
     navController: NavController,
-    viewModel: RegisterViewModel = viewModel()
+    userRepository: UserRepository,
+    viewModel: RegisterViewModel = RegisterViewModel(userRepository)
 ) {
     val emailFocusRequester = remember { FocusRequester() }
     val passwordFocusRequester = remember { FocusRequester() }
@@ -160,13 +162,5 @@ fun RegisterScreen(
                 }
             }
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun RegisterScreenPreview() {
-    MonumentGoTheme {
-        RegisterScreen(rememberNavController())
     }
 }

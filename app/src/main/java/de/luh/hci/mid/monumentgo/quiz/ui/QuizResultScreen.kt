@@ -1,5 +1,6 @@
 package de.luh.hci.mid.monumentgo.quiz.ui
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -32,6 +33,7 @@ fun QuizResultScreen(
 ) {
     val correctAnswers: Int = QuizRepository.currentScore
     val userPoints: Int = resultViewModel.getUserPoints()
+    Log.e("quiz", "userPoints: $userPoints")
     LaunchedEffect(Unit) {
         resultViewModel.submitScore(currentScore)
     }
